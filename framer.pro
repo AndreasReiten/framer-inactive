@@ -13,6 +13,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    lib/qxfilelib/qxfilelib.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    lib/qxfilelib/qxfilelib.h \
+    lib/qxfilelib/qxfilelib_global.h
