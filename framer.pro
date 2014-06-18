@@ -4,12 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
+QT       += core gui opengl
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+LIBS += -lOpenCL
 TARGET = framer
 TEMPLATE = app
+QMAKE_CXXFLAGS += -std=c++0x # C++11 
 
 
 SOURCES += main.cpp\
@@ -56,3 +57,15 @@ HEADERS  += mainwindow.h \
     lib/qxlib/qxsvo/utils/sparsevoxelocttree.h \
     lib/qxlib/qxsvo/qxsvolib.h \
     lib/qxlib/qxlib.h
+
+OTHER_FILES += \
+    lib/qxlib/qxopengl/glsl/std_2d_col.f.glsl \
+    lib/qxlib/qxopengl/glsl/std_2d_col.v.glsl \
+    lib/qxlib/qxopengl/glsl/std_2d_tex.f.glsl \
+    lib/qxlib/qxopengl/glsl/std_2d_tex.v.glsl \
+    lib/qxlib/qxopengl/glsl/std_3d_col.f.glsl \
+    lib/qxlib/qxopengl/glsl/std_3d_col.v.glsl \
+    lib/qxlib/qxopengl/glsl/std_blend.f.glsl \
+    lib/qxlib/qxopengl/glsl/std_blend.v.glsl \
+    lib/qxlib/qxopengl/glsl/unitcell.f.glsl \
+    lib/qxlib/qxopengl/glsl/unitcell.v.glsl
