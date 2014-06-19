@@ -6,12 +6,17 @@
 
 QT       += core gui opengl
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
+RESOURCES = framer.qrc
 LIBS += -lOpenCL
 TARGET = framer
 TEMPLATE = app
 QMAKE_CXXFLAGS += -std=c++0x # C++11 
+QMAKE_MAKEFILE = Makefile
 
+OBJECTS_DIR = .obj
+MOC_DIR = .moc
+RCC_DIR = .rcc
+UI_DIR = .ui
 
 SOURCES += main.cpp\
     mainwindow.cpp \

@@ -16,12 +16,20 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
+protected:
+    void closeEvent(QCloseEvent *event);
+    
 private:
     void initLayout();
+    void readSettings();
+    void writeSettings();
     
     QTabWidget * tabWidget;
     QWidget * fileWidget;
     QMainWindow * imageWidget;
+    QWidget * imageInnerWidget;
+    QWidget * imageDisplayWidget;
+    QWidget * imageHeaderWidget;
     
     QLineEdit * fileFilter;
     FileTreeView * fileTreeView;

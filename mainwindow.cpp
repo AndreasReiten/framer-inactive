@@ -1,16 +1,50 @@
 #include "mainwindow.h"
 
 #include <QGridLayout>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    // Stylesheet
+    QFile styleFile( ":/stylesheets/plain.qss" );
+    styleFile.open( QFile::ReadOnly );
+    QString style( styleFile.readAll() );
+    styleFile.close();
+    this->setStyleSheet(style);
+    
+    // UI
     initLayout();
+
+    // Session settings
+    readSettings();
 }
 
 MainWindow::~MainWindow()
 {
     
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    writeSettings();
+    event->accept();
+}
+
+void MainWindow::readSettings()
+{
+    QSettings settings("Norwegian University of Science and Technology", "framer");
+    QPoint pos = settings.value("pos", QPoint(0, 0)).toPoint();
+    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    resize(size);
+    move(pos);
+}
+
+void MainWindow::writeSettings()
+{
+    QSettings settings("Norwegian University of Science and Technology", "framer");
+    settings.setValue("pos", pos());
+    settings.setValue("size", size());
 }
 
 void MainWindow::initLayout()
@@ -49,7 +83,13 @@ void MainWindow::initLayout()
     calculationDock =  new QDockWidget("Calculations");
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
     
+    imageInnerWidget = new QWidget;
+    imageDisplayWidget = new QWidget;
+    imageHeaderWidget = new QWidget;
+    
     imageDock =  new QDockWidget("View");
+    imageDock->setWidget(renderWidget);
+    
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, imageDock);
     
     // Tab widget    
