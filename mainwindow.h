@@ -39,6 +39,10 @@ private:
     QDockWidget * settingsDock;
     QDockWidget * calculationDock;
     QDockWidget * imageDock;
+
+    ImagePreviewWindow * imagePreviewWindow;
+    SharedContextWindow * sharedContextWindow ;
+    OpenCLContext * context_cl;
 };
 
 #endif // MAINWINDOW_H

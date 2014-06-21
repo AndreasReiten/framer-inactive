@@ -72,9 +72,6 @@ void MainWindow::initLayout()
     imageWidget =  new QMainWindow;
     
     navigationDock =  new QDockWidget("Navigate");
-//    QGridLayout * navigationLayout = new QGridLayout;
-//    navigationLayout->addWidget(label_texture,0,0,1,2);
-//    graphicsWidget->setLayout(navigationLayout);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, navigationDock);
     
     settingsDock =  new QDockWidget("Settings");
@@ -83,12 +80,55 @@ void MainWindow::initLayout()
     calculationDock =  new QDockWidget("Calculations");
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
     
-    imageInnerWidget = new QWidget;
-    imageDisplayWidget = new QWidget;
+
+    // Set the OpenCL context
+    context_cl = new OpenCLContext;
+
+    // Set the format of the rendering context
+    QSurfaceFormat format_gl;
+    format_gl.setSamples(16);
+    format_gl.setRedBufferSize(8);
+    format_gl.setGreenBufferSize(8);
+    format_gl.setBlueBufferSize(8);
+    format_gl.setAlphaBufferSize(8);
+
+    // Use a common object to hold a shareable GL and CL context
+    sharedContextWindow = new SharedContextWindow();
+    sharedContextWindow->setFormat(format_gl);
+    sharedContextWindow->setOpenCLContext(context_cl);
+    sharedContextWindow->show();
+    sharedContextWindow->initializeWorker();
+    sharedContextWindow->hide();
+
+    // Set up a rendering surface
+    imagePreviewWindow = new ImagePreviewWindow();
+    imagePreviewWindow->setMultiThreading(true);
+    imagePreviewWindow->setSharedWindow(sharedContextWindow);
+    imagePreviewWindow->setFormat(format_gl);
+    imagePreviewWindow->setOpenCLContext(context_cl);
+    imagePreviewWindow->setAnimating(true);
+    imagePreviewWindow->initializeWorker();
+
+    // Apply the rendering surface to a widget
+    imageDisplayWidget = QWidget::createWindowContainer(imagePreviewWindow);
+    imageDisplayWidget->setFocusPolicy(Qt::TabFocus);
+
+
     imageHeaderWidget = new QWidget;
+
+    QGridLayout * imageInnerLayout = new QGridLayout;
+    imageInnerLayout->addWidget(imageDisplayWidget,0,0,1,1);
+    imageInnerLayout->addWidget(imageHeaderWidget,0,1,1,1);
+
+    imageInnerWidget = new QWidget;
+    imageInnerWidget->setLayout(imageInnerLayout);
+
+
+
+
     
     imageDock =  new QDockWidget("View");
-    imageDock->setWidget(renderWidget);
+    imageDock->setWidget(imageInnerWidget);
     
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, imageDock);
     
