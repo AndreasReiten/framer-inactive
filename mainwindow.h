@@ -5,6 +5,7 @@
 #include <QTabWidget>
 #include <QDockWidget>
 #include <QLineEdit>
+#include <QPlainTextEdit>
 
 #include "lib/qxlib/qxlib.h"
 
@@ -29,7 +30,7 @@ private:
     QMainWindow * imageWidget;
     QWidget * imageInnerWidget;
     QWidget * imageDisplayWidget;
-    QWidget * imageHeaderWidget;
+    QPlainTextEdit * imageHeaderWidget;
     
     QLineEdit * fileFilter;
     FileTreeView * fileTreeView;

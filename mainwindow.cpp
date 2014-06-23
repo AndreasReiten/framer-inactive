@@ -114,7 +114,8 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::TabFocus);
 
 
-    imageHeaderWidget = new QWidget;
+    imageHeaderWidget = new QPlainTextEdit;
+    imageHeaderWidget->setReadOnly(true);
 
     QGridLayout * imageInnerLayout = new QGridLayout;
     imageInnerLayout->addWidget(imageDisplayWidget,0,0,1,1);
@@ -129,7 +130,8 @@ void MainWindow::initLayout()
     
     imageDock =  new QDockWidget("View");
     imageDock->setWidget(imageInnerWidget);
-    
+    imageDock->setSizePolicy(QSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum));
+
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, imageDock);
     
     // Tab widget    
