@@ -6,6 +6,13 @@
 #include <QDockWidget>
 #include <QLineEdit>
 #include <QPlainTextEdit>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QToolBar>
+#include <QAction>
+#include <QCheckBox>
 
 #include "lib/qxlib/qxlib.h"
 
@@ -41,8 +48,33 @@ private:
     QDockWidget * navigationDock;
     QDockWidget * settingsDock;
     QDockWidget * calculationDock;
-//    QDockWidget * imageDock;
     QDockWidget * headerDock;
+
+    QWidget * navigationWidget;
+    QWidget * settingsWidget;
+
+    QPushButton * nextFramePushButton;
+    QPushButton * previousFramePushButton;
+    QPushButton * tenFrameForwardPushButton;
+    QPushButton * tenFrameBackPushButton;
+    QPushButton * nextFolderPushButton;
+    QPushButton * previousFolderPushButton;
+
+    QComboBox * imageModeComboBox;
+    QComboBox * tsfTextureComboBox;
+    QComboBox * tsfAlphaComboBox;
+    QDoubleSpinBox * dataMinDoubleSpinBox;
+    QDoubleSpinBox * dataMaxDoubleSpinBox;
+    QCheckBox * logCheckBox;
+
+
+    QComboBox * integrationModeComboBox;
+    QPushButton * integratePushButton;
+
+    QLineEdit * pathLineEdit;
+    QToolBar * imageToolBar;
+
+    QAction * squareAreaSelectAction;
 
     ImagePreviewWindow * imagePreviewWindow;
     SharedContextWindow * sharedContextWindow ;

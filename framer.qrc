@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>stylesheets/plain.qss</file>
+        <file>art/select.png</file>
     </qresource>
 </RCC>
- 
