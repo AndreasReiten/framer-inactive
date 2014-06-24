@@ -2,6 +2,7 @@
 
 #include <QGridLayout>
 #include <QSettings>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,11 +50,13 @@ void MainWindow::writeSettings()
 
 void MainWindow::initLayout()
 {
+    qDebug() << "Waaah!";
+
     // File widget
     fileFilter = new QLineEdit;
     
     fileSelectionModel =  new FileSelectionModel;
-    fileSelectionModel->setRootPath(QDir::rootPath());
+    fileSelectionModel->setRootIndex(fileSelectionModel->setRootPath(QDir::rootPath()));
     
     fileTreeView =  new FileTreeView;
     fileTreeView->setModel(fileSelectionModel);
@@ -72,12 +75,15 @@ void MainWindow::initLayout()
     imageWidget =  new QMainWindow;
     
     navigationDock =  new QDockWidget("Navigate");
+    navigationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, navigationDock);
     
     settingsDock =  new QDockWidget("Settings");
+    settingsDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, settingsDock);
     
     calculationDock =  new QDockWidget("Calculations");
+    calculationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
     
 
@@ -112,32 +118,53 @@ void MainWindow::initLayout()
     // Apply the rendering surface to a widget
     imageDisplayWidget = QWidget::createWindowContainer(imagePreviewWindow);
     imageDisplayWidget->setFocusPolicy(Qt::TabFocus);
-
+    imageDisplayWidget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
     imageHeaderWidget = new QPlainTextEdit;
     imageHeaderWidget->setReadOnly(true);
+//    imageHeaderWidget->setFixedWidth(200);
 
-    QGridLayout * imageInnerLayout = new QGridLayout;
-    imageInnerLayout->addWidget(imageDisplayWidget,0,0,1,1);
-    imageInnerLayout->addWidget(imageHeaderWidget,0,1,1,1);
+//    QGridLayout * imageInnerLayout = new QGridLayout;
+//    imageInnerLayout->addWidget(imageDisplayWidget,0,0,1,1);
+//    imageInnerLayout->addWidget(imageHeaderWidget,0,1,1,1);
 
-    imageInnerWidget = new QWidget;
-    imageInnerWidget->setLayout(imageInnerLayout);
-
+//    imageInnerWidget = new QWidget;
+//    imageInnerWidget->setLayout(imageInnerLayout);
+    imageWidget->setCentralWidget(imageDisplayWidget);
 
 
 
     
-    imageDock =  new QDockWidget("View");
-    imageDock->setWidget(imageInnerWidget);
-    imageDock->setSizePolicy(QSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum));
+//    imageDock =  new QDockWidget("View");
+//    imageDock->setWidget(imageInnerWidget);
+//    imageDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+//    imageDock->setSizePolicy(QSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum));
 
-    imageWidget->addDockWidget(Qt::LeftDockWidgetArea, imageDock);
+//    imageWidget->addDockWidget(Qt::LeftDockWidgetArea, imageDock);
     
+    headerDock = new QDockWidget("Header");
+    headerDock->setWidget(imageHeaderWidget);
+    headerDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    imageWidget->addDockWidget(Qt::RightDockWidgetArea, headerDock);
+
     // Tab widget    
     tabWidget =  new QTabWidget;
     setCentralWidget(tabWidget);
     
     tabWidget->addTab(fileWidget, "Files");
     tabWidget->addTab(imageWidget, "View");
+
+    qDebug() << "Connecting";
+    connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setTab(int)));
+
+
+}
+
+void MainWindow::setTab(int value)
+{
+    qDebug() << "Tab changed";
+
+    if (value == 1) file_paths = fileSelectionModel->getFilesEfficient();
+
+    qDebug() << file_paths;
 }

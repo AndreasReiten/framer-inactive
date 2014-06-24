@@ -12,7 +12,9 @@
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+public slots:
+    void setTab(int value);
+
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -39,11 +41,13 @@ private:
     QDockWidget * navigationDock;
     QDockWidget * settingsDock;
     QDockWidget * calculationDock;
-    QDockWidget * imageDock;
+//    QDockWidget * imageDock;
+    QDockWidget * headerDock;
 
     ImagePreviewWindow * imagePreviewWindow;
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
+    QStringList file_paths;
 };
 
 #endif // MAINWINDOW_H
