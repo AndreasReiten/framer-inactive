@@ -56,7 +56,7 @@ void MainWindow::initLayout()
     fileFilter = new QLineEdit;
     
     fileSelectionModel =  new FileSelectionModel;
-    fileSelectionModel->setRootIndex(fileSelectionModel->setRootPath(QDir::rootPath()));
+    fileSelectionModel->setRootPath(QDir::rootPath());
     
     fileTreeView =  new FileTreeView;
     fileTreeView->setModel(fileSelectionModel);
@@ -154,7 +154,6 @@ void MainWindow::initLayout()
     tabWidget->addTab(fileWidget, "Files");
     tabWidget->addTab(imageWidget, "View");
 
-    qDebug() << "Connecting";
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setTab(int)));
 
 
@@ -164,7 +163,7 @@ void MainWindow::setTab(int value)
 {
     qDebug() << "Tab changed";
 
-    if (value == 1) file_paths = fileSelectionModel->getFilesEfficient();
+    if (value == 1) file_paths = fileSelectionModel->getFiles();
 
     qDebug() << file_paths;
 }
