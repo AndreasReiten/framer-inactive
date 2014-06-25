@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QSettings>
 #include <QDebug>
+//#include <QSpacerItem>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -110,7 +111,7 @@ void MainWindow::initLayout()
     navigationDock =  new QDockWidget("Navigate");
     navigationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     navigationDock->setWidget(navigationWidget);
-    navigationDock->setFixedHeight(navigationWidget->minimumSizeHint().height()*1.1);
+    navigationDock->setFixedHeight(navigationWidget->minimumSizeHint().height()*1.2);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, navigationDock);
     
     // Dock widget
@@ -156,7 +157,7 @@ void MainWindow::initLayout()
     settingsDock =  new QDockWidget("Settings");
     settingsDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     settingsDock->setWidget(settingsWidget);
-    settingsDock->setFixedHeight(settingsWidget->minimumSizeHint().height()*1.1);
+    settingsDock->setFixedHeight(settingsWidget->minimumSizeHint().height()*1.2);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, settingsDock);
     
     // Dock widget
@@ -167,9 +168,17 @@ void MainWindow::initLayout()
 
     integratePushButton = new QPushButton("Integrate");
 
+    QGridLayout * calculationLayout = new QGridLayout;
+    calculationLayout->addWidget(integrationModeComboBox,0,0,1,1);
+    calculationLayout->addWidget(integratePushButton,1,0,1,1);
+
+    calculationWidget = new QWidget;
+    calculationWidget->setLayout(calculationLayout);
+
     calculationDock =  new QDockWidget("Calculations");
     calculationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-//    calculationDock->setFixedSize(graphicsWidget->minimumSizeHint());
+    calculationDock->setFixedHeight(calculationWidget->minimumSizeHint().height()*1.2);
+    calculationDock->setWidget(calculationWidget);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
     
     // Dock widget
@@ -229,5 +238,6 @@ void MainWindow::initLayout()
 
 void MainWindow::setTab(int value)
 {
-    if (value == 1) file_paths = fileSelectionModel->getFiles();
+//    if (value == 1) file_paths = fileSelectionModel->getFiles();
+    if (value == 1) fileSelectionModel->getPaths();
 }

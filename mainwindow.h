@@ -52,6 +52,7 @@ private:
 
     QWidget * navigationWidget;
     QWidget * settingsWidget;
+    QWidget * calculationWidget;
 
     QPushButton * nextFramePushButton;
     QPushButton * previousFramePushButton;
