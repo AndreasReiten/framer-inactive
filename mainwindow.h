@@ -21,6 +21,16 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public slots:
     void setTab(int value);
+    void nextFrame();
+    void previousFrame();
+    void batchForward();
+    void batchBackward();
+    void nextFolder();
+    void previousFolder();
+    void setHeader(QString path);
+
+signals:
+    void pathChanged(QString path);
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -56,10 +66,12 @@ private:
 
     QPushButton * nextFramePushButton;
     QPushButton * previousFramePushButton;
-    QPushButton * tenFrameForwardPushButton;
-    QPushButton * tenFrameBackPushButton;
+    QPushButton * batchForwardPushButton;
+    QPushButton * batchBackwardPushButton;
+    size_t batch_size;
     QPushButton * nextFolderPushButton;
     QPushButton * previousFolderPushButton;
+//    QSpinBox * frameIndexSpinBox;
 
     QComboBox * imageModeComboBox;
     QComboBox * tsfTextureComboBox;
@@ -80,7 +92,12 @@ private:
     ImagePreviewWindow * imagePreviewWindow;
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
-    QStringList file_paths;
+
+    QMap<QString, QStringList> paths;
+    QMapIterator<QString, QStringList> folder_iterator;
+
+    QStringList files;
+    QStringListIterator file_iterator;
 };
 
 #endif // MAINWINDOW_H

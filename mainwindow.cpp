@@ -6,7 +6,9 @@
 //#include <QSpacerItem>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+      folder_iterator(paths),
+      file_iterator(files)
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -14,12 +16,13 @@ MainWindow::MainWindow(QWidget *parent)
     QString style( styleFile.readAll() );
     styleFile.close();
     this->setStyleSheet(style);
-    
+
     // UI
     initLayout();
 
     // Session settings
     readSettings();
+
 }
 
 MainWindow::~MainWindow()
@@ -51,8 +54,6 @@ void MainWindow::writeSettings()
 
 void MainWindow::initLayout()
 {
-    qDebug() << "Waaah!";
-
     // File widget
     fileFilter = new QLineEdit;
     
@@ -78,6 +79,8 @@ void MainWindow::initLayout()
     // Toolbar
     pathLineEdit = new QLineEdit("/path/to/file");
     pathLineEdit->setReadOnly(true);
+    connect(this, SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
+
     imageToolBar = new QToolBar("Image");
 
     squareAreaSelectAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
@@ -92,18 +95,29 @@ void MainWindow::initLayout()
     // Dock widget
     nextFramePushButton = new QPushButton("Next");
     previousFramePushButton = new QPushButton("Previous");
-    tenFrameForwardPushButton = new QPushButton("Ten forward");
-    tenFrameBackPushButton = new QPushButton("Ten backward");
+    batchForwardPushButton = new QPushButton("Fast forward");
+    batchBackwardPushButton = new QPushButton("Fast backward");
+    batch_size = 10;
     nextFolderPushButton = new QPushButton("Next folder");
     previousFolderPushButton = new QPushButton("Previous folder");
 
+//    frameIndexSpinBox = new QSpinBox;
+
+
     QGridLayout * navigationLayout = new QGridLayout;
-    navigationLayout->addWidget(nextFramePushButton,0,0,1,1);
-    navigationLayout->addWidget(previousFramePushButton,0,1,1,1);
-    navigationLayout->addWidget(tenFrameForwardPushButton,1,0,1,1);
-    navigationLayout->addWidget(tenFrameBackPushButton,1,1,1,1);
-    navigationLayout->addWidget(nextFolderPushButton,2,0,1,1);
-    navigationLayout->addWidget(previousFolderPushButton,2,1,1,1);
+    navigationLayout->addWidget(nextFramePushButton,0,1,1,1);
+    navigationLayout->addWidget(previousFramePushButton,0,0,1,1);
+    navigationLayout->addWidget(batchForwardPushButton,1,1,1,1);
+    navigationLayout->addWidget(batchBackwardPushButton,1,0,1,1);
+    navigationLayout->addWidget(nextFolderPushButton,2,1,1,1);
+    navigationLayout->addWidget(previousFolderPushButton,2,0,1,1);
+
+    connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
+    connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
+    connect(batchForwardPushButton, SIGNAL(clicked()), this, SLOT(batchForward()));
+    connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
+    connect(nextFolderPushButton, SIGNAL(clicked()), this, SLOT(nextFolder()));
+    connect(previousFolderPushButton, SIGNAL(clicked()), this, SLOT(previousFolder()));
 
     navigationWidget = new QWidget;
     navigationWidget->setLayout(navigationLayout);
@@ -185,6 +199,8 @@ void MainWindow::initLayout()
     imageHeaderWidget = new QPlainTextEdit;
     imageHeaderWidget->setReadOnly(true);
 
+    connect(this, SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
+
     headerDock = new QDockWidget("Header");
     headerDock->setWidget(imageHeaderWidget);
     headerDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
@@ -220,9 +236,11 @@ void MainWindow::initLayout()
 
     // Apply the rendering surface to a widget
     imageDisplayWidget = QWidget::createWindowContainer(imagePreviewWindow);
-    imageDisplayWidget->setFocusPolicy(Qt::TabFocus);
-    imageDisplayWidget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+    imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
+//    imageDisplayWidget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
     imageWidget->setCentralWidget(imageDisplayWidget);
+
+    connect(this, SIGNAL(pathChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setImageFromPath(QString)));
 
     // Tab widget    
     tabWidget =  new QTabWidget;
@@ -238,6 +256,68 @@ void MainWindow::initLayout()
 
 void MainWindow::setTab(int value)
 {
-//    if (value == 1) file_paths = fileSelectionModel->getFiles();
-    if (value == 1) fileSelectionModel->getPaths();
+    if (value == 1)
+    {
+        paths = fileSelectionModel->getPaths();
+        folder_iterator = paths;
+        if (folder_iterator.hasNext())
+        {
+            folder_iterator.next();
+            files = folder_iterator.value();
+            file_iterator = files;
+        }
+    }
+}
+
+void MainWindow::setHeader(QString path)
+{
+    DetectorFile file(path);
+    imageHeaderWidget->setPlainText(file.getHeaderText());
+}
+
+void MainWindow::nextFrame()
+{
+    if (file_iterator.hasNext())
+    {
+        emit pathChanged(file_iterator.next());
+    }
+}
+void MainWindow::previousFrame()
+{
+    if (file_iterator.hasPrevious())
+    {
+        emit pathChanged(file_iterator.previous());
+    }
+}
+void MainWindow::batchForward()
+{
+    for (size_t i = 0; i < batch_size; i++) nextFrame();
+}
+void MainWindow::batchBackward()
+{
+    for (size_t i = 0; i < batch_size; i++) previousFrame();
+}
+void MainWindow::nextFolder()
+{
+    if (folder_iterator.hasNext())
+    {
+        folder_iterator.next();
+
+        files = folder_iterator.value();
+        file_iterator = files;
+
+        nextFrame();
+    }
+}
+void MainWindow::previousFolder()
+{
+    if (folder_iterator.hasPrevious())
+    {
+        folder_iterator.previous();
+
+        files = folder_iterator.value();
+        file_iterator = files;
+
+        nextFrame();
+    }
 }
