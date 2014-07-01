@@ -79,6 +79,7 @@ private:
     QDoubleSpinBox * dataMinDoubleSpinBox;
     QDoubleSpinBox * dataMaxDoubleSpinBox;
     QCheckBox * logCheckBox;
+    QCheckBox * correctionCheckBox;
 
 
     QComboBox * integrationModeComboBox;

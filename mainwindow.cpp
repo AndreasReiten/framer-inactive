@@ -155,6 +155,7 @@ void MainWindow::initLayout()
     dataMaxDoubleSpinBox->setAccelerated(true);
 
     logCheckBox = new QCheckBox("Log");
+    correctionCheckBox = new QCheckBox("Corrections");
 
     QGridLayout * settingsLayout = new QGridLayout;
     settingsLayout->addWidget(imageModeComboBox,0,1,1,2);
@@ -163,6 +164,8 @@ void MainWindow::initLayout()
     settingsLayout->addWidget(dataMinDoubleSpinBox,2,1,1,1);
     settingsLayout->addWidget(dataMaxDoubleSpinBox,2,2,1,1);
     settingsLayout->addWidget(logCheckBox,3,1,1,1);
+    settingsLayout->addWidget(correctionCheckBox,3,2,1,1);
+
 
     settingsWidget = new QWidget;
     settingsWidget->setLayout(settingsLayout);
