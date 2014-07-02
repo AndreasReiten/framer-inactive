@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public slots:
     void setTab(int value);
+    void loadPaths();
     void nextFrame();
     void previousFrame();
     void batchForward();
@@ -41,6 +42,7 @@ protected:
     
 private:
     void initLayout();
+    void setStartConditions();
     void readSettings();
     void writeSettings();
     
@@ -64,6 +66,7 @@ private:
     QWidget * settingsWidget;
     QWidget * calculationWidget;
 
+    QPushButton * loadPathsPushButton;
     QPushButton * nextFramePushButton;
     QPushButton * previousFramePushButton;
     QPushButton * batchForwardPushButton;
@@ -95,10 +98,10 @@ private:
     OpenCLContext * context_cl;
 
     QMap<QString, QStringList> paths;
-    QMapIterator<QString, QStringList> folder_iterator;
+    QMap<QString, QStringList>::const_iterator folder_iterator;
 
     QStringList files;
-    QStringListIterator file_iterator;
+    QStringList::const_iterator file_iterator;
 };
 
 #endif // MAINWINDOW_H

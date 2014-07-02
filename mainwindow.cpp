@@ -7,8 +7,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      folder_iterator(paths),
-      file_iterator(files)
+      folder_iterator(paths.constBegin()),
+      file_iterator(files.constBegin())
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Session settings
     readSettings();
+
+    // Set start conditions
+    setStartConditions();
 
 }
 
@@ -93,8 +96,9 @@ void MainWindow::initLayout()
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
 
     // Dock widget
-    nextFramePushButton = new QPushButton("Next");
-    previousFramePushButton = new QPushButton("Previous");
+    loadPathsPushButton = new QPushButton("Load files");
+    nextFramePushButton = new QPushButton("Next file");
+    previousFramePushButton = new QPushButton("Previous file");
     batchForwardPushButton = new QPushButton("Fast forward");
     batchBackwardPushButton = new QPushButton("Fast backward");
     batch_size = 10;
@@ -105,13 +109,15 @@ void MainWindow::initLayout()
 
 
     QGridLayout * navigationLayout = new QGridLayout;
-    navigationLayout->addWidget(nextFramePushButton,0,1,1,1);
-    navigationLayout->addWidget(previousFramePushButton,0,0,1,1);
-    navigationLayout->addWidget(batchForwardPushButton,1,1,1,1);
-    navigationLayout->addWidget(batchBackwardPushButton,1,0,1,1);
-    navigationLayout->addWidget(nextFolderPushButton,2,1,1,1);
-    navigationLayout->addWidget(previousFolderPushButton,2,0,1,1);
+    navigationLayout->addWidget(loadPathsPushButton,0,0,1,2);
+    navigationLayout->addWidget(nextFramePushButton,1,1,1,1);
+    navigationLayout->addWidget(previousFramePushButton,1,0,1,1);
+    navigationLayout->addWidget(batchForwardPushButton,2,1,1,1);
+    navigationLayout->addWidget(batchBackwardPushButton,2,0,1,1);
+    navigationLayout->addWidget(nextFolderPushButton,3,1,1,1);
+    navigationLayout->addWidget(previousFolderPushButton,3,0,1,1);
 
+    connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
     connect(batchForwardPushButton, SIGNAL(clicked()), this, SLOT(batchForward()));
@@ -144,6 +150,7 @@ void MainWindow::initLayout()
 
     tsfAlphaComboBox = new QComboBox;
     tsfAlphaComboBox->addItem("Linear");
+    tsfAlphaComboBox->addItem("Exponential");
     tsfAlphaComboBox->addItem("Uniform");
 
     dataMinDoubleSpinBox = new QDoubleSpinBox;
@@ -240,10 +247,11 @@ void MainWindow::initLayout()
     // Apply the rendering surface to a widget
     imageDisplayWidget = QWidget::createWindowContainer(imagePreviewWindow);
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
-//    imageDisplayWidget->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
     connect(this, SIGNAL(pathChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setImageFromPath(QString)));
+    connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)), Qt::AutoConnection);
+    connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
 
     // Tab widget    
     tabWidget =  new QTabWidget;
@@ -253,23 +261,18 @@ void MainWindow::initLayout()
     tabWidget->addTab(imageWidget, "View");
 
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setTab(int)));
-
-
 }
+
+void MainWindow::setStartConditions()
+{
+    tsfTextureComboBox->setCurrentIndex(1);
+    tsfAlphaComboBox->setCurrentIndex(2);
+}
+
 
 void MainWindow::setTab(int value)
 {
-    if (value == 1)
-    {
-        paths = fileSelectionModel->getPaths();
-        folder_iterator = paths;
-        if (folder_iterator.hasNext())
-        {
-            folder_iterator.next();
-            files = folder_iterator.value();
-            file_iterator = files;
-        }
-    }
+    Q_UNUSED(value);
 }
 
 void MainWindow::setHeader(QString path)
@@ -278,49 +281,115 @@ void MainWindow::setHeader(QString path)
     imageHeaderWidget->setPlainText(file.getHeaderText());
 }
 
+void MainWindow::loadPaths()
+{
+    paths = fileSelectionModel->getPaths();
+    folder_iterator = paths.constBegin();
+    if (folder_iterator != paths.constEnd())
+    {
+        files = folder_iterator.value();
+        file_iterator = files.constBegin();
+        emit pathChanged(*file_iterator);
+    }
+}
+
 void MainWindow::nextFrame()
 {
-    if (file_iterator.hasNext())
+    if (file_iterator != files.constEnd())
     {
-        emit pathChanged(file_iterator.next());
+        file_iterator++;
+
+        if (file_iterator != files.constEnd())
+        {
+            emit pathChanged(*file_iterator);
+        }
+        else
+        {
+            file_iterator--;
+        }
     }
 }
 void MainWindow::previousFrame()
 {
-    if (file_iterator.hasPrevious())
+    if (file_iterator != files.constBegin())
     {
-        emit pathChanged(file_iterator.previous());
+        file_iterator--;
+
+        emit pathChanged(*file_iterator);
     }
 }
 void MainWindow::batchForward()
 {
-    for (size_t i = 0; i < batch_size; i++) nextFrame();
+    if (files.size() > 0)
+    {
+        for (size_t i = 0; i < batch_size; i++)
+        {
+            if (file_iterator != files.constEnd())
+            {
+                file_iterator++;
+
+                if (file_iterator != files.constEnd())
+                {
+                    if (i + 1 == batch_size) emit pathChanged(*file_iterator);
+                }
+                else
+                {
+                    file_iterator--;
+                    emit pathChanged(*file_iterator);
+                    break;
+                }
+            }
+        }
+    }
 }
 void MainWindow::batchBackward()
 {
-    for (size_t i = 0; i < batch_size; i++) previousFrame();
+    if (files.size() > 0)
+    {
+        for (size_t i = 0; i < batch_size; i++)
+        {
+            if (file_iterator != files.constBegin())
+            {
+                file_iterator--;
+
+                if (i + 1 == batch_size) emit pathChanged(*file_iterator);
+            }
+            else
+            {
+                emit pathChanged(*file_iterator);
+                break;
+            }
+        }
+    }
 }
 void MainWindow::nextFolder()
 {
-    if (folder_iterator.hasNext())
+    if (folder_iterator != paths.constEnd())
     {
-        folder_iterator.next();
+        folder_iterator++;
 
-        files = folder_iterator.value();
-        file_iterator = files;
+        if (folder_iterator != paths.constEnd())
+        {
+            files = folder_iterator.value();
+            file_iterator = files.constBegin();
 
-        nextFrame();
+            emit pathChanged(*file_iterator);
+        }
+        else
+        {
+            folder_iterator--;
+        }
     }
 }
 void MainWindow::previousFolder()
 {
-    if (folder_iterator.hasPrevious())
+    if (folder_iterator != paths.constBegin())
     {
-        folder_iterator.previous();
+        folder_iterator--;
 
         files = folder_iterator.value();
-        file_iterator = files;
+        file_iterator = files.constBegin();
 
-        nextFrame();
+        emit pathChanged(*file_iterator);
     }
 }
