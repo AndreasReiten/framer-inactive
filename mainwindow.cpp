@@ -152,6 +152,7 @@ void MainWindow::initLayout()
     tsfAlphaComboBox->addItem("Linear");
     tsfAlphaComboBox->addItem("Exponential");
     tsfAlphaComboBox->addItem("Uniform");
+    tsfAlphaComboBox->addItem("Opaque");
 
     dataMinDoubleSpinBox = new QDoubleSpinBox;
     dataMinDoubleSpinBox->setRange(-1e9,1e9);
@@ -252,6 +253,11 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(pathChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setImageFromPath(QString)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)), Qt::AutoConnection);
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
+    connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
+    connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMax(double)));
+    connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setLog(bool)));
+    connect(correctionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
+    connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
 
     // Tab widget    
     tabWidget =  new QTabWidget;
@@ -267,6 +273,12 @@ void MainWindow::setStartConditions()
 {
     tsfTextureComboBox->setCurrentIndex(1);
     tsfAlphaComboBox->setCurrentIndex(2);
+    dataMinDoubleSpinBox->setValue(0);
+    dataMaxDoubleSpinBox->setValue(1000);
+    logCheckBox->setChecked(true);
+    correctionCheckBox->setChecked(true);
+    imageModeComboBox->setCurrentIndex(0);
+
 }
 
 
