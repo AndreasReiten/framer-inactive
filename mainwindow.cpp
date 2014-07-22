@@ -5,10 +5,29 @@
 #include <QDebug>
 //#include <QSpacerItem>
 
+Image::Image()
+{
+    ;
+}
+Image::~Image()
+{
+    ;
+}
+
+ImageFolder::ImageFolder()
+{
+    ;
+}
+ImageFolder::~ImageFolder()
+{
+    ;
+}
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      folder_iterator(paths.constBegin()),
-      file_iterator(files.constBegin())
+      folder_iterator_r(folders.constBegin()),
+      image_iterator_r(images.constBegin())
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -258,6 +277,7 @@ void MainWindow::initLayout()
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setLog(bool)));
     connect(correctionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
+    connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
 
     // Tab widget    
     tabWidget =  new QTabWidget;
@@ -295,59 +315,88 @@ void MainWindow::setHeader(QString path)
 
 void MainWindow::loadPaths()
 {
-    paths = fileSelectionModel->getPaths();
-    folder_iterator = paths.constBegin();
-    if (folder_iterator != paths.constEnd())
+    QMap<QString, QStringList> tmp(fileSelectionModel->getPaths());
+    QMap<QString, QStringList>::const_iterator i = tmp.constBegin();
+    while (i != tmp.constEnd())
     {
-        files = folder_iterator.value();
-        file_iterator = files.constBegin();
-        emit pathChanged(*file_iterator);
+        ImageFolder folder;
+        folder.path = i.key();
+
+        QStringList tmp2(i.value());
+
+        QStringList::const_iterator j = tmp2.constBegin();
+        while (j != tmp2.constEnd())
+        {
+            Image image;
+            image.selection = QRect(0,0,0,0);
+            image.path = *j;
+
+            folder.images << image;
+
+            ++j;
+        }
+
+        folders << folder;
+
+        ++i;
+    }
+
+
+    folder_iterator_r = folders.constBegin();
+    if (folder_iterator_r != folders.constEnd())
+    {
+        images = folder_iterator_r->images;
+        image_iterator_r = images.constBegin();
+        emit pathChanged(image_iterator_r->path);
     }
 }
 
 void MainWindow::nextFrame()
 {
-    if (file_iterator != files.constEnd())
-    {
-        file_iterator++;
 
-        if (file_iterator != files.constEnd())
+    if (image_iterator_r != images.constEnd())
+    {
+        image_iterator_r++;
+
+        if (image_iterator_r != images.constEnd())
         {
-            emit pathChanged(*file_iterator);
+            emit pathChanged(image_iterator_r->path);
         }
         else
         {
-            file_iterator--;
+            image_iterator_r--;
         }
     }
 }
+
 void MainWindow::previousFrame()
 {
-    if (file_iterator != files.constBegin())
+    if (image_iterator_r != images.constBegin())
     {
-        file_iterator--;
+        image_iterator_r--;
 
-        emit pathChanged(*file_iterator);
+        emit pathChanged(image_iterator_r->path);
     }
 }
+
 void MainWindow::batchForward()
 {
-    if (files.size() > 0)
+    if (images.size() > 0)
     {
         for (size_t i = 0; i < batch_size; i++)
         {
-            if (file_iterator != files.constEnd())
+            if (image_iterator_r != images.constEnd())
             {
-                file_iterator++;
+                image_iterator_r++;
 
-                if (file_iterator != files.constEnd())
+                if (image_iterator_r != images.constEnd())
                 {
-                    if (i + 1 == batch_size) emit pathChanged(*file_iterator);
+                    if (i + 1 == batch_size) emit pathChanged(image_iterator_r->path);
                 }
                 else
                 {
-                    file_iterator--;
-                    emit pathChanged(*file_iterator);
+                    image_iterator_r--;
+                    emit pathChanged(image_iterator_r->path);
                     break;
                 }
             }
@@ -356,19 +405,19 @@ void MainWindow::batchForward()
 }
 void MainWindow::batchBackward()
 {
-    if (files.size() > 0)
+    if (images.size() > 0)
     {
         for (size_t i = 0; i < batch_size; i++)
         {
-            if (file_iterator != files.constBegin())
+            if (image_iterator_r != images.constBegin())
             {
-                file_iterator--;
+                image_iterator_r--;
 
-                if (i + 1 == batch_size) emit pathChanged(*file_iterator);
+                if (i + 1 == batch_size) emit pathChanged(image_iterator_r->path);
             }
             else
             {
-                emit pathChanged(*file_iterator);
+                emit pathChanged(image_iterator_r->path);
                 break;
             }
         }
@@ -376,32 +425,32 @@ void MainWindow::batchBackward()
 }
 void MainWindow::nextFolder()
 {
-    if (folder_iterator != paths.constEnd())
+    if (folder_iterator_r != folders.constEnd())
     {
-        folder_iterator++;
+        folder_iterator_r++;
 
-        if (folder_iterator != paths.constEnd())
+        if (folder_iterator_r != folders.constEnd())
         {
-            files = folder_iterator.value();
-            file_iterator = files.constBegin();
+            images = folder_iterator_r->images;
+            image_iterator_r = images.constBegin();
 
-            emit pathChanged(*file_iterator);
+            emit pathChanged(image_iterator_r->path);
         }
         else
         {
-            folder_iterator--;
+            folder_iterator_r--;
         }
     }
 }
 void MainWindow::previousFolder()
 {
-    if (folder_iterator != paths.constBegin())
+    if (folder_iterator_r != folders.constBegin())
     {
-        folder_iterator--;
+        folder_iterator_r--;
 
-        files = folder_iterator.value();
-        file_iterator = files.constBegin();
+        images = folder_iterator_r->images;
+        image_iterator_r = images.constBegin();
 
-        emit pathChanged(*file_iterator);
+        emit pathChanged(image_iterator_r->path);
     }
 }

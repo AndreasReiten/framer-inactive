@@ -13,8 +13,29 @@
 #include <QToolBar>
 #include <QAction>
 #include <QCheckBox>
+#include <QRect>
 
 #include "lib/qxlib/qxlib.h"
+
+class Image
+{
+public:
+    Image();
+    ~Image();
+
+    QString path;
+    QRect selection;
+};
+
+class ImageFolder
+{
+public:
+    ImageFolder();
+    ~ImageFolder();
+
+    QString path;
+    QList<Image> images;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -97,11 +118,18 @@ private:
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
 
-    QMap<QString, QStringList> paths;
-    QMap<QString, QStringList>::const_iterator folder_iterator;
+//    QMap<QString, QStringList> paths;
+//    QMap<QString, QStringList>::const_iterator folder_iterator;
 
-    QStringList files;
-    QStringList::const_iterator file_iterator;
+//    QStringList files;
+//    QStringList::const_iterator file_iterator;
+
+    QList<ImageFolder> folders;
+    QList<ImageFolder>::const_iterator folder_iterator_r;
+    QList<Image> images;
+    QList<Image>::const_iterator image_iterator_r;
 };
+
+
 
 #endif // MAINWINDOW_H
