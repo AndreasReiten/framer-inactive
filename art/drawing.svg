@@ -13,7 +13,7 @@
    height="1052.3622047"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.5 r10040"
    sodipodi:docname="drawing.svg">
   <defs
      id="defs4" />
@@ -24,14 +24,14 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="323.26533"
-     inkscape:cy="380.22677"
+     inkscape:zoom="2.8"
+     inkscape:cx="310.23124"
+     inkscape:cy="448.50804"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1680"
-     inkscape:window-height="1000"
+     inkscape:window-width="1920"
+     inkscape:window-height="1028"
      inkscape:window-x="-4"
      inkscape:window-y="-3"
      inkscape:window-maximized="1"
@@ -82,5 +82,25 @@
        inkscape:export-filename="/home/natt/Coding/framer/art/select.png"
        inkscape:export-xdpi="103.69566"
        inkscape:export-ydpi="103.69566" />
+    <rect
+       style="fill:#000000;fill-opacity:0.06514659;fill-rule:nonzero;stroke:#000000;stroke-width:5.77428627;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect2986"
+       width="29.225723"
+       height="34.225723"
+       x="262.88715"
+       y="550.24933"
+       inkscape:export-filename="/home/natt/coding/framer/art/center.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <rect
+       style="fill:#000000;fill-opacity:0.06514659;fill-rule:nonzero;stroke:#000000;stroke-width:5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect2988"
+       width="15"
+       height="20"
+       x="270"
+       y="557.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/center.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
   </g>
 </svg>

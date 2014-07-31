@@ -23,8 +23,15 @@ public:
     Image();
     ~Image();
 
-    QString path;
-    QRect selection;
+    void setPath(QString str);
+    QString path();
+    
+    void setSelection(QRectF rect);
+    QRectF selection();
+    
+private:
+    QString p_path;
+    QRectF p_selection;
 };
 
 class ImageFolder
@@ -32,9 +39,23 @@ class ImageFolder
 public:
     ImageFolder();
     ~ImageFolder();
-
-    QString path;
+    
+    void setPath(QString str);
+    QString path();
+    int size();
+    
+    void setImages(QList<Image> list);
+    
+    Image * current();
+    Image * next();
+    Image * previous();
+    Image * begin();
+    
+private:
+    QString p_path;
     QList<Image> images;
+    int i;
+    
 };
 
 class MainWindow : public QMainWindow
@@ -50,9 +71,14 @@ public slots:
     void nextFolder();
     void previousFolder();
     void setHeader(QString path);
+    void setSelection(QRectF rect);
+    void applySelectionToFolder();
+    void applySelectionToNext();
 
 signals:
     void pathChanged(QString path);
+    void centerImage();
+    void selectionChanged(QRectF rect);
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -95,6 +121,8 @@ private:
     size_t batch_size;
     QPushButton * nextFolderPushButton;
     QPushButton * previousFolderPushButton;
+    QPushButton * applySelectionToFolderPushButton;
+    QPushButton * applySelectionToNextPushButton;
 //    QSpinBox * frameIndexSpinBox;
 
     QComboBox * imageModeComboBox;
@@ -113,21 +141,22 @@ private:
     QToolBar * imageToolBar;
 
     QAction * squareAreaSelectAction;
-
+    QAction * centerImageAction;
+    
     ImagePreviewWindow * imagePreviewWindow;
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
 
 //    QMap<QString, QStringList> paths;
-//    QMap<QString, QStringList>::const_iterator folder_iterator;
+//    QMap<QString, QStringList>::iterator folder_iterator;
 
 //    QStringList files;
-//    QStringList::const_iterator file_iterator;
+//    QStringList::iterator file_iterator;
 
     QList<ImageFolder> folders;
-    QList<ImageFolder>::const_iterator folder_iterator_r;
-    QList<Image> images;
-    QList<Image>::const_iterator image_iterator_r;
+    QList<ImageFolder>::iterator folder_iterator;
+//    QList<Image> images;
+//    QList<Image>::iterator image_iterator;
 };
 
 

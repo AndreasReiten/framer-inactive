@@ -18,5 +18,6 @@
         <file>art/rotate_up.png</file>
         <file>art/save.png</file>
         <file>art/screenshot.png</file>
+        <file>art/center.png</file>
     </qresource>
 </RCC>

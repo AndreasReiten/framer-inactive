@@ -74,5 +74,7 @@ OTHER_FILES += \
     lib/qxlib/qxopengl/glsl/std_blend.v.glsl \
     lib/qxlib/qxopengl/glsl/unitcell.f.glsl \
     lib/qxlib/qxopengl/glsl/unitcell.v.glsl \
-    lib/qxlib/qxopencl/cl/image_preview.cl
+    lib/qxlib/qxopencl/cl/image_preview.cl \
+    lib/qxlib/qxopengl/glsl/rect_hl_2d_tex.f.glsl \
+    lib/qxlib/qxopengl/glsl/rect_hl_2d_tex.v.glsl
 

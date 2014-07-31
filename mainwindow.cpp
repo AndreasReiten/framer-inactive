@@ -1,33 +1,105 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 
 #include <QGridLayout>
 #include <QSettings>
+#include <QMessageBox>
 #include <QDebug>
-//#include <QSpacerItem>
 
 Image::Image()
 {
-    ;
+    p_selection = QRectF(0,0,5000,5000);
 }
 Image::~Image()
 {
     ;
 }
 
+void Image::setPath(QString str)
+{
+    p_path = str;
+}
+
+QString Image::path()
+{
+    return p_path;
+}
+
+void Image::setSelection(QRectF rect)
+{
+    p_selection = rect;
+}
+
+QRectF Image::selection()
+{
+    return p_selection;
+}
+
+
 ImageFolder::ImageFolder()
 {
-    ;
+    i = 0;
 }
+
 ImageFolder::~ImageFolder()
 {
     ;
 }
 
+void ImageFolder::setPath(QString str)
+{
+    p_path = str;
+}
+
+QString ImageFolder::path()
+{
+    return p_path;
+}
+
+int ImageFolder::size()
+{
+    return images.size();
+}
+
+void ImageFolder::setImages(QList<Image> list)
+{
+    images = list;
+    i = 0;
+}
+
+Image * ImageFolder::current()
+{
+    return &images[i];
+}
+
+Image * ImageFolder::next()
+{
+    if (i < images.size() - 1)
+    {
+        i++;
+    }
+    
+    return &images[i];
+}
+
+Image * ImageFolder::previous()
+{
+    if (i > 0)
+    {
+        i--;
+    }
+    
+    return &images[i];
+}
+
+Image * ImageFolder::begin()
+{
+    i = 0;    
+    return &images[i];
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      folder_iterator_r(folders.constBegin()),
-      image_iterator_r(images.constBegin())
+      folder_iterator(folders.begin())
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -44,7 +116,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Set start conditions
     setStartConditions();
-
 }
 
 MainWindow::~MainWindow()
@@ -108,7 +179,11 @@ void MainWindow::initLayout()
     squareAreaSelectAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
     squareAreaSelectAction->setCheckable(true);
     squareAreaSelectAction->setChecked(false);
+    
+    centerImageAction = new QAction(QIcon(":/art/center.png"), tr("Center image"), this);
+    centerImageAction->setCheckable(false);
 
+    imageToolBar->addAction(centerImageAction);
     imageToolBar->addAction(squareAreaSelectAction);
     imageToolBar->addWidget(pathLineEdit);
 
@@ -123,10 +198,10 @@ void MainWindow::initLayout()
     batch_size = 10;
     nextFolderPushButton = new QPushButton("Next folder");
     previousFolderPushButton = new QPushButton("Previous folder");
-
-//    frameIndexSpinBox = new QSpinBox;
-
-
+    
+    applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
+    applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
+    
     QGridLayout * navigationLayout = new QGridLayout;
     navigationLayout->addWidget(loadPathsPushButton,0,0,1,2);
     navigationLayout->addWidget(nextFramePushButton,1,1,1,1);
@@ -135,6 +210,8 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(batchBackwardPushButton,2,0,1,1);
     navigationLayout->addWidget(nextFolderPushButton,3,1,1,1);
     navigationLayout->addWidget(previousFolderPushButton,3,0,1,1);
+    navigationLayout->addWidget(applySelectionToNextPushButton, 4, 0, 1 , 2);
+    navigationLayout->addWidget(applySelectionToFolderPushButton, 5, 0, 1 , 2); 
 
     connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
@@ -143,7 +220,10 @@ void MainWindow::initLayout()
     connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
     connect(nextFolderPushButton, SIGNAL(clicked()), this, SLOT(nextFolder()));
     connect(previousFolderPushButton, SIGNAL(clicked()), this, SLOT(previousFolder()));
-
+    connect(applySelectionToNextPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToNext()));
+    connect(applySelectionToFolderPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToFolder()));
+    
+    
     navigationWidget = new QWidget;
     navigationWidget->setLayout(navigationLayout);
 
@@ -235,7 +315,7 @@ void MainWindow::initLayout()
     headerDock->setWidget(imageHeaderWidget);
     headerDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, headerDock);
-
+    
     // Set the OpenCL context
     context_cl = new OpenCLContext;
 
@@ -278,7 +358,11 @@ void MainWindow::initLayout()
     connect(correctionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
     connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
-
+    connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
+    connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
+    connect(this, SIGNAL(selectionChanged(QRectF)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRectF)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
+            
     // Tab widget    
     tabWidget =  new QTabWidget;
     setCentralWidget(tabWidget);
@@ -301,6 +385,33 @@ void MainWindow::setStartConditions()
 
 }
 
+void MainWindow::applySelectionToFolder()
+{
+    if (folders.size() > 0)
+    {
+        QRectF selection = folder_iterator->current()->selection();
+        
+        folder_iterator->begin();
+        
+        for (int i = 0; i < folder_iterator->size(); i++)
+        {
+            folder_iterator->current()->setSelection(selection);
+            folder_iterator->next();
+        }
+    }
+}
+
+void MainWindow::applySelectionToNext()
+{
+    if (folders.size() > 0)
+    {
+        QRectF selection = folder_iterator->current()->selection();
+        folder_iterator->next()->setSelection(selection);
+        
+        emit pathChanged(folder_iterator->current()->path());
+        emit selectionChanged(folder_iterator->current()->selection());
+    }
+}
 
 void MainWindow::setTab(int value)
 {
@@ -313,144 +424,156 @@ void MainWindow::setHeader(QString path)
     imageHeaderWidget->setPlainText(file.getHeaderText());
 }
 
+void MainWindow::setSelection(QRectF rect)
+{
+    folder_iterator->current()->setSelection(rect);
+    
+//    qDebug() << "MW Rect" << rect;
+//    qDebug() << "MW Test" << folder_iterator->current()->selection();
+}
+
 void MainWindow::loadPaths()
 {
-    QMap<QString, QStringList> tmp(fileSelectionModel->getPaths());
-    QMap<QString, QStringList>::const_iterator i = tmp.constBegin();
-    while (i != tmp.constEnd())
+    QMessageBox confirmationMsgBox;
+    
+    confirmationMsgBox.setText("Any changes will be lost.");
+    confirmationMsgBox.setInformativeText("Do you want to save them?");
+    confirmationMsgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    confirmationMsgBox.setDefaultButton(QMessageBox::Save);
+    int ret = confirmationMsgBox.exec();
+    
+    switch (ret) {
+       case QMessageBox::Save:
+           // Save was clicked
+           break;
+       case QMessageBox::Discard:
+           // Discard was clicked
+           break;
+       case QMessageBox::Cancel:
+           // Cancel was clicked
+           break;
+       default:
+           // should never be reached
+           break;
+     }
+    
+    folders.clear();
+    
+    QMap<QString, QStringList> folder_map(fileSelectionModel->getPaths());
+    QMap<QString, QStringList>::const_iterator i = folder_map.constBegin();
+    while (i != folder_map.constEnd())
     {
         ImageFolder folder;
-        folder.path = i.key();
+        folder.setPath(i.key());
 
-        QStringList tmp2(i.value());
+        QStringList image_strings(i.value());
+        QStringList::const_iterator j = image_strings.constBegin();
 
-        QStringList::const_iterator j = tmp2.constBegin();
-        while (j != tmp2.constEnd())
+        QList<Image> image_list;
+        while (j != image_strings.constEnd())
         {
             Image image;
-            image.selection = QRect(0,0,0,0);
-            image.path = *j;
+//            image.setSelection(QRect(0,0,0,0));
+            image.setPath(*j);
 
-            folder.images << image;
+            image_list << image;
 
             ++j;
         }
-
+            
+        folder.setImages(image_list);
         folders << folder;
 
         ++i;
     }
 
 
-    folder_iterator_r = folders.constBegin();
-    if (folder_iterator_r != folders.constEnd())
+    folder_iterator = folders.begin();
+    if (folder_iterator != folders.end())
     {
-        images = folder_iterator_r->images;
-        image_iterator_r = images.constBegin();
-        emit pathChanged(image_iterator_r->path);
+        if (folders.size() > 0)
+        {
+            emit pathChanged(folder_iterator->current()->path());
+            emit selectionChanged(folder_iterator->current()->selection());
+        }
+        emit centerImage();
     }
 }
 
 void MainWindow::nextFrame()
 {
-
-    if (image_iterator_r != images.constEnd())
+    if (folders.size() > 0)
     {
-        image_iterator_r++;
-
-        if (image_iterator_r != images.constEnd())
-        {
-            emit pathChanged(image_iterator_r->path);
-        }
-        else
-        {
-            image_iterator_r--;
-        }
+        emit pathChanged(folder_iterator->next()->path());
+        emit selectionChanged(folder_iterator->current()->selection());
     }
 }
 
 void MainWindow::previousFrame()
 {
-    if (image_iterator_r != images.constBegin())
+    if (folders.size() > 0)
     {
-        image_iterator_r--;
-
-        emit pathChanged(image_iterator_r->path);
+        emit pathChanged(folder_iterator->previous()->path());
+        emit selectionChanged(folder_iterator->current()->selection());
     }
 }
 
 void MainWindow::batchForward()
 {
-    if (images.size() > 0)
+    if (folders.size() > 0)
     {
         for (size_t i = 0; i < batch_size; i++)
         {
-            if (image_iterator_r != images.constEnd())
-            {
-                image_iterator_r++;
-
-                if (image_iterator_r != images.constEnd())
-                {
-                    if (i + 1 == batch_size) emit pathChanged(image_iterator_r->path);
-                }
-                else
-                {
-                    image_iterator_r--;
-                    emit pathChanged(image_iterator_r->path);
-                    break;
-                }
-            }
+            folder_iterator->next();
         }
+        
+        emit pathChanged(folder_iterator->current()->path());
+        emit selectionChanged(folder_iterator->current()->selection());
     }
 }
 void MainWindow::batchBackward()
 {
-    if (images.size() > 0)
+    if (folders.size() > 0)
     {
         for (size_t i = 0; i < batch_size; i++)
         {
-            if (image_iterator_r != images.constBegin())
-            {
-                image_iterator_r--;
-
-                if (i + 1 == batch_size) emit pathChanged(image_iterator_r->path);
-            }
-            else
-            {
-                emit pathChanged(image_iterator_r->path);
-                break;
-            }
+            folder_iterator->previous();
         }
+        
+        emit pathChanged(folder_iterator->current()->path());
+        emit selectionChanged(folder_iterator->current()->selection());
     }
 }
 void MainWindow::nextFolder()
 {
-    if (folder_iterator_r != folders.constEnd())
+    if (folder_iterator != folders.end())
     {
-        folder_iterator_r++;
+        folder_iterator++;
 
-        if (folder_iterator_r != folders.constEnd())
+        if (folder_iterator != folders.end())
         {
-            images = folder_iterator_r->images;
-            image_iterator_r = images.constBegin();
-
-            emit pathChanged(image_iterator_r->path);
+            if (folders.size() > 0)
+            {
+                emit pathChanged(folder_iterator->current()->path());
+                emit selectionChanged(folder_iterator->current()->selection());
+            }
         }
         else
         {
-            folder_iterator_r--;
+            folder_iterator--;
         }
     }
 }
 void MainWindow::previousFolder()
 {
-    if (folder_iterator_r != folders.constBegin())
+    if (folder_iterator != folders.begin())
     {
-        folder_iterator_r--;
+        folder_iterator--;
 
-        images = folder_iterator_r->images;
-        image_iterator_r = images.constBegin();
-
-        emit pathChanged(image_iterator_r->path);
+        if (folders.size() > 0)
+        {
+            emit pathChanged(folder_iterator->current()->path());
+            emit selectionChanged(folder_iterator->current()->selection());
+        }
     }
 }
