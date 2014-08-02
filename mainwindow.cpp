@@ -243,13 +243,13 @@ void MainWindow::initLayout()
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
 
     // Dock widget
-    nextFramePushButton = new QPushButton("Next file");
-    previousFramePushButton = new QPushButton("Previous file");
-    batchForwardPushButton = new QPushButton("Fast forward");
-    batchBackwardPushButton = new QPushButton("Fast backward");
+    nextFramePushButton = new QPushButton(QIcon(":/art/forward.png"),"Next file");
+    previousFramePushButton = new QPushButton(QIcon(":/art/back.png"),"Previous file");
+    batchForwardPushButton = new QPushButton(QIcon(":/art/fast_forward.png"),"Fast forward");
+    batchBackwardPushButton = new QPushButton(QIcon(":/art/fast_back.png"),"Fast backward");
     batch_size = 10;
-    nextFolderPushButton = new QPushButton("Next folder");
-    previousFolderPushButton = new QPushButton("Previous folder");
+    nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next folder");
+    previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
     
     applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
     applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
@@ -360,6 +360,7 @@ void MainWindow::initLayout()
     imageHeaderWidget = new QPlainTextEdit;
     imageHeaderWidget->setReadOnly(true);
 
+
     connect(this, SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
 
     headerDock = new QDockWidget("Header");
@@ -401,7 +402,7 @@ void MainWindow::initLayout()
     imageWidget->setCentralWidget(imageDisplayWidget);
 
     connect(this, SIGNAL(pathChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setImageFromPath(QString)));
-    connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)), Qt::AutoConnection);
+    connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
     connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMax(double)));
