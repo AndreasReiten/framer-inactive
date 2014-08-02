@@ -24,15 +24,18 @@ public:
     ~Image();
 
     void setPath(QString str);
-    QString path();
+    const QString path() const;
     
     void setSelection(QRectF rect);
-    QRectF selection();
+    const QRectF selection() const;
     
 private:
     QString p_path;
     QRectF p_selection;
 };
+
+QDataStream &operator<<(QDataStream &out, const Image &image);
+QDataStream &operator>>(QDataStream &in, Image &image);
 
 class ImageFolder
 {
@@ -41,10 +44,11 @@ public:
     ~ImageFolder();
     
     void setPath(QString str);
-    QString path();
-    int size();
+    const QString path() const;
+    const int size() const;
     
     void setImages(QList<Image> list);
+    const QList<Image> &images() const;
     
     Image * current();
     Image * next();
@@ -53,10 +57,13 @@ public:
     
 private:
     QString p_path;
-    QList<Image> images;
-    int i;
+    QList<Image> p_images;
+    int p_i;
     
 };
+
+QDataStream &operator<<(QDataStream &out, const ImageFolder &image_folder);
+QDataStream &operator>>(QDataStream &in, ImageFolder &image_folder);
 
 class MainWindow : public QMainWindow
 {
@@ -74,6 +81,9 @@ public slots:
     void setSelection(QRectF rect);
     void applySelectionToFolder();
     void applySelectionToNext();
+    void saveProject();
+    void loadProject();
+    void setFiles(QMap<QString, QStringList> folder_map);
 
 signals:
     void pathChanged(QString path);
@@ -139,7 +149,9 @@ private:
 
     QLineEdit * pathLineEdit;
     QToolBar * imageToolBar;
-
+    
+    QAction * saveProjectAction;
+    QAction * loadProjectAction;
     QAction * squareAreaSelectAction;
     QAction * centerImageAction;
     

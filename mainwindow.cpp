@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QSettings>
 #include <QMessageBox>
+#include <QFileDialog>
 #include <QDebug>
 
 Image::Image()
@@ -19,7 +20,7 @@ void Image::setPath(QString str)
     p_path = str;
 }
 
-QString Image::path()
+const QString Image::path() const
 {
     return p_path;
 }
@@ -29,15 +30,34 @@ void Image::setSelection(QRectF rect)
     p_selection = rect;
 }
 
-QRectF Image::selection()
+const QRectF Image::selection() const
 {
     return p_selection;
+}
+
+QDataStream &operator<<(QDataStream &out, const Image &image)
+{
+    out << image.path() << image.selection();
+    
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Image &image)
+{
+    QString path;
+    QRectF rect;
+
+    in >> path >> rect;
+    image.setPath(path);
+    image.setSelection(rect);
+    
+    return in;
 }
 
 
 ImageFolder::ImageFolder()
 {
-    i = 0;
+    p_i = 0;
 }
 
 ImageFolder::~ImageFolder()
@@ -50,51 +70,75 @@ void ImageFolder::setPath(QString str)
     p_path = str;
 }
 
-QString ImageFolder::path()
+const QString ImageFolder::path() const
 {
     return p_path;
 }
 
-int ImageFolder::size()
+const int ImageFolder::size() const
 {
-    return images.size();
+    return p_images.size();
 }
 
 void ImageFolder::setImages(QList<Image> list)
 {
-    images = list;
-    i = 0;
+    p_images = list;
+    p_i = 0;
 }
 
 Image * ImageFolder::current()
 {
-    return &images[i];
+    return &p_images[p_i];
 }
 
 Image * ImageFolder::next()
 {
-    if (i < images.size() - 1)
+    if (p_i < p_images.size() - 1)
     {
-        i++;
+        p_i++;
     }
     
-    return &images[i];
+    return &p_images[p_i];
 }
 
 Image * ImageFolder::previous()
 {
-    if (i > 0)
+    if (p_i > 0)
     {
-        i--;
+        p_i--;
     }
     
-    return &images[i];
+    return &p_images[p_i];
 }
 
 Image * ImageFolder::begin()
 {
-    i = 0;    
-    return &images[i];
+    p_i = 0;    
+    return &p_images[p_i];
+}
+
+const QList<Image> & ImageFolder::images() const
+{
+    return p_images;
+}
+
+QDataStream &operator<<(QDataStream &out, const ImageFolder &image_folder)
+{
+    out << image_folder.path() << image_folder.images();
+    
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, ImageFolder &image_folder)
+{
+    QString path;
+    QList<Image> images;
+
+    in >> path >> images;
+    image_folder.setPath(path);
+    image_folder.setImages(images);
+    
+    return in;
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -159,9 +203,13 @@ void MainWindow::initLayout()
     connect(fileFilter, SIGNAL(textChanged(QString)), fileSelectionModel, SLOT(setStringFilter(QString)));
     fileFilter->setText("*.cbf");
     
+    loadPathsPushButton = new QPushButton(QIcon(":/art/rotate_down.png"),"Load selected files");
+    connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
+    
     QGridLayout * fileWidgetLayout = new QGridLayout;
     fileWidgetLayout->addWidget(fileFilter,0,0,1,1);
     fileWidgetLayout->addWidget(fileTreeView,1,0,1,1);
+    fileWidgetLayout->addWidget(loadPathsPushButton,2,0,1,1);
     
     fileWidget =  new QWidget;
     fileWidget->setLayout(fileWidgetLayout);
@@ -176,6 +224,9 @@ void MainWindow::initLayout()
 
     imageToolBar = new QToolBar("Image");
 
+    saveProjectAction = new QAction(QIcon(":/art/save.png"), tr("Save project"), this);
+    loadProjectAction = new QAction(QIcon(":/art/open.png"), tr("Load project"), this);
+    
     squareAreaSelectAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
     squareAreaSelectAction->setCheckable(true);
     squareAreaSelectAction->setChecked(false);
@@ -183,6 +234,8 @@ void MainWindow::initLayout()
     centerImageAction = new QAction(QIcon(":/art/center.png"), tr("Center image"), this);
     centerImageAction->setCheckable(false);
 
+    imageToolBar->addAction(saveProjectAction);
+    imageToolBar->addAction(loadProjectAction);
     imageToolBar->addAction(centerImageAction);
     imageToolBar->addAction(squareAreaSelectAction);
     imageToolBar->addWidget(pathLineEdit);
@@ -190,7 +243,6 @@ void MainWindow::initLayout()
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
 
     // Dock widget
-    loadPathsPushButton = new QPushButton("Load files");
     nextFramePushButton = new QPushButton("Next file");
     previousFramePushButton = new QPushButton("Previous file");
     batchForwardPushButton = new QPushButton("Fast forward");
@@ -203,7 +255,7 @@ void MainWindow::initLayout()
     applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
     
     QGridLayout * navigationLayout = new QGridLayout;
-    navigationLayout->addWidget(loadPathsPushButton,0,0,1,2);
+//    navigationLayout->addWidget(loadPathsPushButton,0,0,1,2);
     navigationLayout->addWidget(nextFramePushButton,1,1,1,1);
     navigationLayout->addWidget(previousFramePushButton,1,0,1,1);
     navigationLayout->addWidget(batchForwardPushButton,2,1,1,1);
@@ -212,8 +264,7 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(previousFolderPushButton,3,0,1,1);
     navigationLayout->addWidget(applySelectionToNextPushButton, 4, 0, 1 , 2);
     navigationLayout->addWidget(applySelectionToFolderPushButton, 5, 0, 1 , 2); 
-
-    connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
+    
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
     connect(batchForwardPushButton, SIGNAL(clicked()), this, SLOT(batchForward()));
@@ -357,6 +408,8 @@ void MainWindow::initLayout()
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setLog(bool)));
     connect(correctionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
+    connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
+    connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
     connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
@@ -427,39 +480,110 @@ void MainWindow::setHeader(QString path)
 void MainWindow::setSelection(QRectF rect)
 {
     folder_iterator->current()->setSelection(rect);
-    
-//    qDebug() << "MW Rect" << rect;
-//    qDebug() << "MW Test" << folder_iterator->current()->selection();
 }
+
+
+void MainWindow::saveProject()
+{
+    QFileDialog dialog;
+    dialog.setDefaultSuffix("txt");
+    QString path = dialog.getSaveFileName(this, tr("Save project"), "", tr(".qt (*.qt);; All Files (*)"));
+
+    if (path != "")
+    {
+        QFile file(path);
+        if (file.open(QIODevice::WriteOnly))
+        {
+            QDataStream out(&file);
+            
+            out << folders;
+            out << tsfTextureComboBox->currentText();
+            out << tsfAlphaComboBox->currentText();
+            out << (double) dataMinDoubleSpinBox->value();
+            out << (double) dataMaxDoubleSpinBox->value();
+            out << (bool) logCheckBox->isChecked();
+            out << (bool) correctionCheckBox->isChecked();            
+            
+            file.close();
+        }
+    }
+}
+
+void MainWindow::loadProject()
+{
+    QString path = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr(".qt (*.qt);; All Files (*)"));
+
+    if (path != "")
+    {
+        QFile file(path);
+        if (file.open(QIODevice::ReadOnly))
+        {
+            QList<ImageFolder> folder_map;
+            QString tsfTexture;
+            QString tsfAlpha;
+            double dataMin;
+            double dataMax;
+            bool log;
+            bool correction;
+            
+            QDataStream in(&file);
+            
+            in >> folder_map >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> correction;
+            
+            folders = folder_map;
+            folder_iterator = folders.begin();
+            
+            tsfTextureComboBox->setCurrentText(tsfTexture);
+            tsfAlphaComboBox->setCurrentText(tsfAlpha);
+            dataMinDoubleSpinBox->setValue(dataMin);
+            dataMaxDoubleSpinBox->setValue(dataMax);
+            logCheckBox->setChecked(log);
+            correctionCheckBox->setChecked(correction);
+            
+            file.close();
+        }
+    }
+}
+
 
 void MainWindow::loadPaths()
 {
     QMessageBox confirmationMsgBox;
     
-    confirmationMsgBox.setText("Any changes will be lost.");
-    confirmationMsgBox.setInformativeText("Do you want to save them?");
+    confirmationMsgBox.setWindowTitle("framer");
+    confirmationMsgBox.setIcon(QMessageBox::Question);
+    confirmationMsgBox.setText("Unsaved changes will be lost.");
+    confirmationMsgBox.setInformativeText("Save first?");
     confirmationMsgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     confirmationMsgBox.setDefaultButton(QMessageBox::Save);
     int ret = confirmationMsgBox.exec();
     
-    switch (ret) {
-       case QMessageBox::Save:
-           // Save was clicked
-           break;
-       case QMessageBox::Discard:
-           // Discard was clicked
-           break;
-       case QMessageBox::Cancel:
-           // Cancel was clicked
-           break;
-       default:
-           // should never be reached
-           break;
-     }
-    
+    switch (ret) 
+    {
+        case QMessageBox::Save:
+            // Save was clicked
+            saveProject();
+            tabWidget->setCurrentIndex(1);
+            setFiles(fileSelectionModel->getPaths());
+            break;
+        case QMessageBox::Discard:
+            // Discard was clicked
+            tabWidget->setCurrentIndex(1);
+            setFiles(fileSelectionModel->getPaths());
+            break;
+        case QMessageBox::Cancel:
+            // Cancel was clicked
+            break;
+        default:
+            // should never be reached
+            break;
+    }
+}
+
+void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
+{
     folders.clear();
     
-    QMap<QString, QStringList> folder_map(fileSelectionModel->getPaths());
     QMap<QString, QStringList>::const_iterator i = folder_map.constBegin();
     while (i != folder_map.constEnd())
     {
@@ -473,7 +597,7 @@ void MainWindow::loadPaths()
         while (j != image_strings.constEnd())
         {
             Image image;
-//            image.setSelection(QRect(0,0,0,0));
+
             image.setPath(*j);
 
             image_list << image;
@@ -489,16 +613,17 @@ void MainWindow::loadPaths()
 
 
     folder_iterator = folders.begin();
-    if (folder_iterator != folders.end())
-    {
-        if (folders.size() > 0)
-        {
-            emit pathChanged(folder_iterator->current()->path());
-            emit selectionChanged(folder_iterator->current()->selection());
-        }
-        emit centerImage();
-    }
+//    if (folder_iterator != folders.end())
+//    {
+//        if (folders.size() > 0)
+//        {
+//            emit pathChanged(folder_iterator->current()->path());
+//            emit selectionChanged(folder_iterator->current()->selection());
+//        }
+//        emit centerImage();
+//    }
 }
+
 
 void MainWindow::nextFrame()
 {
