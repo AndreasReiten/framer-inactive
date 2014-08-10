@@ -80,10 +80,25 @@ const int ImageFolder::size() const
     return p_images.size();
 }
 
+const int ImageFolder::i() const
+{
+    return p_i;
+}
+
 void ImageFolder::setImages(QList<Image> list)
 {
     p_images = list;
     p_i = 0;
+}
+
+void ImageFolder::removeCurrent()
+{
+    p_images.removeAt(p_i);
+    
+    if (p_i > 0)
+    {
+        p_i--;
+    }
 }
 
 Image * ImageFolder::current()
@@ -122,6 +137,12 @@ const QList<Image> & ImageFolder::images() const
     return p_images;
 }
 
+const bool ImageFolder::operator == (const ImageFolder& other) const
+{
+    if (this->path() == other.path()) return true;
+    else return false;
+}
+
 QDataStream &operator<<(QDataStream &out, const ImageFolder &image_folder)
 {
     out << image_folder.path() << image_folder.images();
@@ -143,7 +164,8 @@ QDataStream &operator>>(QDataStream &in, ImageFolder &image_folder)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      folder_iterator(folders.begin())
+      folder_iterator(folders.begin()),
+      hasPendingChanges(false)
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -203,7 +225,7 @@ void MainWindow::initLayout()
     connect(fileFilter, SIGNAL(textChanged(QString)), fileSelectionModel, SLOT(setStringFilter(QString)));
     fileFilter->setText("*.cbf");
     
-    loadPathsPushButton = new QPushButton(QIcon(":/art/rotate_down.png"),"Load selected files");
+    loadPathsPushButton = new QPushButton("Load selected files"); //QIcon(":/art/rotate_down.png"),
     connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
     
     QGridLayout * fileWidgetLayout = new QGridLayout;
@@ -251,6 +273,7 @@ void MainWindow::initLayout()
     nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next folder");
     previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
     
+    removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
     applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
     applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
     
@@ -262,8 +285,9 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(batchBackwardPushButton,2,0,1,1);
     navigationLayout->addWidget(nextFolderPushButton,3,1,1,1);
     navigationLayout->addWidget(previousFolderPushButton,3,0,1,1);
-    navigationLayout->addWidget(applySelectionToNextPushButton, 4, 0, 1 , 2);
-    navigationLayout->addWidget(applySelectionToFolderPushButton, 5, 0, 1 , 2); 
+    navigationLayout->addWidget(removeCurrentPushButton, 4, 0, 1, 2); 
+    navigationLayout->addWidget(applySelectionToNextPushButton, 5, 0, 1 , 2);
+    navigationLayout->addWidget(applySelectionToFolderPushButton, 6, 0, 1 , 2); 
     
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
@@ -273,7 +297,8 @@ void MainWindow::initLayout()
     connect(previousFolderPushButton, SIGNAL(clicked()), this, SLOT(previousFolder()));
     connect(applySelectionToNextPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToNext()));
     connect(applySelectionToFolderPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToFolder()));
-    
+    connect(removeCurrentPushButton, SIGNAL(clicked()), this, SLOT(removeImage()));
+    connect(this, SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
     
     navigationWidget = new QWidget;
     navigationWidget->setLayout(navigationLayout);
@@ -480,7 +505,12 @@ void MainWindow::setHeader(QString path)
 
 void MainWindow::setSelection(QRectF rect)
 {
-    folder_iterator->current()->setSelection(rect);
+    if (folders.size() > 0)
+    {
+        folder_iterator->current()->setSelection(rect);
+        
+        hasPendingChanges = true;
+    }
 }
 
 
@@ -508,6 +538,8 @@ void MainWindow::saveProject()
             file.close();
         }
     }
+    
+    hasPendingChanges = false;
 }
 
 void MainWindow::loadProject()
@@ -546,6 +578,25 @@ void MainWindow::loadProject()
     }
 }
 
+void MainWindow::removeImage()
+{
+    if (folders.size() > 0)
+    {
+        emit pathRemoved(folder_iterator->current()->path());
+        
+        folder_iterator->removeCurrent();
+        
+        if (folder_iterator->size() == 0) folders.removeAll(*folder_iterator);
+        
+//        qDebug() << folders.size() << folder_iterator->size() << folder_iterator->i();
+        
+        if (folders.size() > 0)
+        {
+            emit pathChanged(folder_iterator->next()->path());
+            emit selectionChanged(folder_iterator->current()->selection());
+        }
+    }
+}
 
 void MainWindow::loadPaths()
 {
@@ -557,19 +608,22 @@ void MainWindow::loadPaths()
     confirmationMsgBox.setInformativeText("Save first?");
     confirmationMsgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     confirmationMsgBox.setDefaultButton(QMessageBox::Save);
-    int ret = confirmationMsgBox.exec();
+    
+    int ret = QMessageBox::Discard;
+    
+    if (hasPendingChanges) ret = confirmationMsgBox.exec();
     
     switch (ret) 
     {
         case QMessageBox::Save:
             // Save was clicked
             saveProject();
-            tabWidget->setCurrentIndex(1);
+//            tabWidget->setCurrentIndex(1);
             setFiles(fileSelectionModel->getPaths());
             break;
         case QMessageBox::Discard:
             // Discard was clicked
-            tabWidget->setCurrentIndex(1);
+//            tabWidget->setCurrentIndex(1);
             setFiles(fileSelectionModel->getPaths());
             break;
         case QMessageBox::Cancel:
@@ -614,7 +668,9 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
 
 
     folder_iterator = folders.begin();
-//    if (folder_iterator != folders.end())
+
+    hasPendingChanges = true;
+    //    if (folder_iterator != folders.end())
 //    {
 //        if (folders.size() > 0)
 //        {

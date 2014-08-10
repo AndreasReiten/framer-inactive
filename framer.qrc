@@ -19,5 +19,6 @@
         <file>art/save.png</file>
         <file>art/screenshot.png</file>
         <file>art/center.png</file>
+        <file>art/kill.png</file>
     </qresource>
 </RCC>

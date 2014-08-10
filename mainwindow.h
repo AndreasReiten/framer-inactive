@@ -46,14 +46,19 @@ public:
     void setPath(QString str);
     const QString path() const;
     const int size() const;
+    const int i() const;
     
     void setImages(QList<Image> list);
+    void removeCurrent();
+    
     const QList<Image> &images() const;
     
     Image * current();
     Image * next();
     Image * previous();
     Image * begin();
+    
+    const bool operator == (const ImageFolder&) const;
     
 private:
     QString p_path;
@@ -84,8 +89,10 @@ public slots:
     void saveProject();
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
+    void removeImage();
 
 signals:
+    void pathRemoved(QString path);
     void pathChanged(QString path);
     void centerImage();
     void selectionChanged(QRectF rect);
@@ -133,6 +140,7 @@ private:
     QPushButton * previousFolderPushButton;
     QPushButton * applySelectionToFolderPushButton;
     QPushButton * applySelectionToNextPushButton;
+    QPushButton * removeCurrentPushButton;
 //    QSpinBox * frameIndexSpinBox;
 
     QComboBox * imageModeComboBox;
@@ -159,16 +167,10 @@ private:
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
 
-//    QMap<QString, QStringList> paths;
-//    QMap<QString, QStringList>::iterator folder_iterator;
-
-//    QStringList files;
-//    QStringList::iterator file_iterator;
-
     QList<ImageFolder> folders;
     QList<ImageFolder>::iterator folder_iterator;
-//    QList<Image> images;
-//    QList<Image>::iterator image_iterator;
+    
+    bool hasPendingChanges;
 };
 
 
