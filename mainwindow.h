@@ -116,6 +116,8 @@ private:
     QWidget * imageInnerWidget;
     QWidget * imageDisplayWidget;
     QPlainTextEdit * imageHeaderWidget;
+    QPlainTextEdit * outputPlainTextEdit;
+    
     
     QLineEdit * fileFilter;
     FileTreeView * fileTreeView;

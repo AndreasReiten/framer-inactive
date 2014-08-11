@@ -442,13 +442,17 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(selectionChanged(QRectF)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRectF)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
             
+    // Text output widget
+    outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
+    
     // Tab widget    
     tabWidget =  new QTabWidget;
     setCentralWidget(tabWidget);
     
     tabWidget->addTab(fileWidget, "Files");
     tabWidget->addTab(imageWidget, "View");
-
+    tabWidget->addTab(outputPlainTextEdit, "Text output");
+    
     connect(tabWidget, SIGNAL(currentChanged(int)), this, SLOT(setTab(int)));
 }
 
