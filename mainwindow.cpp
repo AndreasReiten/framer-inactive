@@ -441,10 +441,16 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(selectionChanged(QRectF)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRectF)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
-            
+    connect(integratePushButton,SIGNAL(clicked()),imagePreviewWindow->getWorker(),SLOT(integrateSelectedMode()));
+    connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),imagePreviewWindow->getWorker(),SLOT(setIntegrationMode(int)));
+
+
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
+    outputPlainTextEdit->setReadOnly(true);
     
+    connect(imagePreviewWindow->getWorker(), SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
+
     // Tab widget    
     tabWidget =  new QTabWidget;
     setCentralWidget(tabWidget);

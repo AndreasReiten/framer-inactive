@@ -77,6 +77,5 @@ OTHER_FILES += \
     lib/qxlib/qxopencl/cl/image_preview.cl \
     lib/qxlib/qxopengl/glsl/rect_hl_2d_tex.f.glsl \
     lib/qxlib/qxopengl/glsl/rect_hl_2d_tex.v.glsl \
-    lib/qxlib/qxopencl/cl/parallel_reduce.cl \
-    lib/qxlib/qxopencl/cl/image_to_buffer.cl
+    lib/qxlib/qxopencl/cl/parallel_reduce.cl
 
