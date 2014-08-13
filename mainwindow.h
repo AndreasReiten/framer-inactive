@@ -50,7 +50,8 @@ public:
     
     void setImages(QList<Image> list);
     void removeCurrent();
-    
+    void rememberCurrent();
+    void restoreMemory();
     const QList<Image> &images() const;
     
     Image * current();
@@ -64,6 +65,7 @@ private:
     QString p_path;
     QList<Image> p_images;
     int p_i;
+    int p_i_memory;
     
 };
 
@@ -90,12 +92,21 @@ public slots:
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
     void removeImage();
-
+    void integrateSingle();
+    void integrateFolder();
+    void integrateSelectedMode();
+    void setIntegrationMode(int value);
+    void setIntegrationResults(double sum, int err);
+    
 signals:
     void pathRemoved(QString path);
     void pathChanged(QString path);
+//    void frameChanged(QString path, QRectF region);
     void centerImage();
     void selectionChanged(QRectF rect);
+    void outputTextAppended(QString str);
+    void outputTextChanged(QString str);
+    void integrateCurrentFrame(QString path, QRectF rect);
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -173,6 +184,11 @@ private:
     QList<ImageFolder>::iterator folder_iterator;
     
     bool hasPendingChanges;
+    int integration_mode;
+    
+    // Integration
+    double integration_sum;
+    int error;
 };
 
 

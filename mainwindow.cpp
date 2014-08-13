@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QDebug>
+#include <QCoreApplication>
 
 Image::Image()
 {
@@ -89,6 +90,7 @@ void ImageFolder::setImages(QList<Image> list)
 {
     p_images = list;
     p_i = 0;
+    p_i_memory = 0;
 }
 
 void ImageFolder::removeCurrent()
@@ -98,6 +100,19 @@ void ImageFolder::removeCurrent()
     if (p_i > 0)
     {
         p_i--;
+    }
+}
+
+void ImageFolder::rememberCurrent()
+{
+    p_i_memory = p_i;
+}
+
+void ImageFolder::restoreMemory()
+{
+    if (p_i_memory < images().size())
+    {
+        p_i = p_i_memory;
     }
 }
 
@@ -165,7 +180,8 @@ QDataStream &operator>>(QDataStream &in, ImageFolder &image_folder)
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       folder_iterator(folders.begin()),
-      hasPendingChanges(false)
+      hasPendingChanges(false),
+      integration_mode(0)
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -214,6 +230,123 @@ void MainWindow::writeSettings()
     QSettings settings("Norwegian University of Science and Technology", "framer");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
+}
+
+void MainWindow::integrateSelectedMode()
+{
+
+
+    switch (integration_mode)
+    {
+        case 0: // Single
+            integrateSingle();
+            break;
+
+        case 1: // Folder
+            integrateFolder();
+            break;
+
+        case 2: // All
+            break;
+
+        default: // Should not occur
+            break;
+    }
+}
+
+void MainWindow::setIntegrationMode(int value)
+{
+    integration_mode = value;
+}
+
+void MainWindow::setIntegrationResults(double sum, int err)
+{
+    QRectF selection = folder_iterator->current()->selection();
+    
+//    integration_sum = sum;
+//    error = err;
+    QString str;
+    QString region_str = QString::number(selection.normalized().left())+" "+QString::number(selection.normalized().top())+" "+QString::number(selection.normalized().width())+" "+QString::number(selection.normalized().height());
+    
+    if (err == 0)
+    {
+//            double integration_sum = integrate(selection, frame);
+        str += QString::number(sum,'E')+" "+region_str;
+    }
+    else 
+    {
+        str += "# Bad integration_sum"+region_str;;
+    }
+    
+    emit outputTextAppended(str);
+}
+
+void MainWindow::integrateSingle()
+{
+    if (folders.size() <= 0) return;
+//        emit pathChanged(folder_iterator->next()->path());
+//        emit selectionChanged(folder_iterator->current()->selection());
+    
+    {
+//        double value = integrate(selection, frame);
+    
+//        qDebug() << "go at it";
+        
+        QString str;
+                
+        str += "# SINGLE FRAME INTEGRATION\n";
+        str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
+        str += "#\n";
+        str += "#\n# Integrated intensity, origin x y, size w h\n";
+//        str += frame.info();
+//        str += "#\n# AREA\n";
+//        str += QString("# Origin x y [pixels]: "+QString::number(selection.normalized().left())+" "+QString::number(selection.normalized().top())+"\n");
+//        str += QString("# Region w h [pixels]: "+QString::number(selection.normalized().width())+" "+QString::number(selection.normalized().height())+"\n");
+//        str += "#\n# Integrated intensity\n";
+//        str += QString::number(value,'E');
+        
+//        int error = 0;
+//        double integration_sum = 0;
+        
+//        qDebug() << folder_iterator->next()->path() << selection;
+        emit outputTextChanged(str);
+        
+        emit integrateCurrentFrame(folder_iterator->current()->path(), folder_iterator->current()->selection());
+//        QCoreApplication::processEvents();
+        
+//        qDebug() << integration_sum << error;
+        
+        
+        
+        
+    }
+}
+
+
+
+void MainWindow::integrateFolder()
+{
+    QString str;
+            
+    str += "# FOLDER INTEGRATION\n";
+    str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
+    str += "#\n";
+    str += "#\n# Integrated intensity, origin x y, size w h\n";
+    
+    emit outputTextChanged(str);
+
+    folder_iterator->rememberCurrent();
+    
+    folder_iterator->begin();
+    
+    for (int i = 0; i < folder_iterator->size(); i++)
+    {
+        emit integrateCurrentFrame(folder_iterator->current()->path(), folder_iterator->current()->selection());
+        
+        folder_iterator->next();
+    }
+    
+    folder_iterator->restoreMemory();
 }
 
 void MainWindow::initLayout()
@@ -446,15 +579,18 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(selectionChanged(QRectF)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRectF)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
-    connect(integratePushButton,SIGNAL(clicked()),imagePreviewWindow->getWorker(),SLOT(integrateSelectedMode()));
-    connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),imagePreviewWindow->getWorker(),SLOT(setIntegrationMode(int)));
-
-
+    connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
+    connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
+    connect(this,SIGNAL(integrateCurrentFrame(QString, QRectF)), imagePreviewWindow->getWorker(), SLOT(integrate(QString,QRectF)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(integrationCompleted(double,int)), this, SLOT(setIntegrationResults(double,int)));
+    
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
     outputPlainTextEdit->setReadOnly(true);
     
-    connect(imagePreviewWindow->getWorker(), SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
+    connect(this, SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
+    connect(this, SIGNAL(outputTextAppended(QString)),outputPlainTextEdit,SLOT(appendPlainText(QString)));
+    
 
     // Tab widget    
     tabWidget =  new QTabWidget;
@@ -485,6 +621,8 @@ void MainWindow::applySelectionToFolder()
     {
         QRectF selection = folder_iterator->current()->selection();
         
+        folder_iterator->rememberCurrent();
+        
         folder_iterator->begin();
         
         for (int i = 0; i < folder_iterator->size(); i++)
@@ -492,6 +630,8 @@ void MainWindow::applySelectionToFolder()
             folder_iterator->current()->setSelection(selection);
             folder_iterator->next();
         }
+        
+        folder_iterator->restoreMemory();
     }
 }
 
