@@ -17,61 +17,6 @@
 
 #include "lib/qxlib/qxlib.h"
 
-class Image
-{
-public:
-    Image();
-    ~Image();
-
-    void setPath(QString str);
-    const QString path() const;
-    
-    void setSelection(QRectF rect);
-    const QRectF selection() const;
-    
-private:
-    QString p_path;
-    QRectF p_selection;
-};
-
-QDataStream &operator<<(QDataStream &out, const Image &image);
-QDataStream &operator>>(QDataStream &in, Image &image);
-
-class ImageFolder
-{
-public:
-    ImageFolder();
-    ~ImageFolder();
-    
-    void setPath(QString str);
-    const QString path() const;
-    const int size() const;
-    const int i() const;
-    
-    void setImages(QList<Image> list);
-    void removeCurrent();
-    void rememberCurrent();
-    void restoreMemory();
-    const QList<Image> &images() const;
-    
-    Image * current();
-    Image * next();
-    Image * previous();
-    Image * begin();
-    
-    const bool operator == (const ImageFolder&) const;
-    
-private:
-    QString p_path;
-    QList<Image> p_images;
-    int p_i;
-    int p_i_memory;
-    
-};
-
-QDataStream &operator<<(QDataStream &out, const ImageFolder &image_folder);
-QDataStream &operator>>(QDataStream &in, ImageFolder &image_folder);
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -180,8 +125,10 @@ private:
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
 
-    QList<ImageFolder> folders;
-    QList<ImageFolder>::iterator folder_iterator;
+    FolderSet folderSet;
+
+//    QList<ImageFolder> folders;
+//    QList<ImageFolder>::iterator folder_iterator;
     
     bool hasPendingChanges;
     int integration_mode;

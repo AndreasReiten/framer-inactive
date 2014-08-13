@@ -7,179 +7,11 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-Image::Image()
-{
-    p_selection = QRectF(0,0,5000,5000);
-}
-Image::~Image()
-{
-    ;
-}
 
-void Image::setPath(QString str)
-{
-    p_path = str;
-}
-
-const QString Image::path() const
-{
-    return p_path;
-}
-
-void Image::setSelection(QRectF rect)
-{
-    p_selection = rect;
-}
-
-const QRectF Image::selection() const
-{
-    return p_selection;
-}
-
-QDataStream &operator<<(QDataStream &out, const Image &image)
-{
-    out << image.path() << image.selection();
-    
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, Image &image)
-{
-    QString path;
-    QRectF rect;
-
-    in >> path >> rect;
-    image.setPath(path);
-    image.setSelection(rect);
-    
-    return in;
-}
-
-
-ImageFolder::ImageFolder()
-{
-    p_i = 0;
-}
-
-ImageFolder::~ImageFolder()
-{
-    ;
-}
-
-void ImageFolder::setPath(QString str)
-{
-    p_path = str;
-}
-
-const QString ImageFolder::path() const
-{
-    return p_path;
-}
-
-const int ImageFolder::size() const
-{
-    return p_images.size();
-}
-
-const int ImageFolder::i() const
-{
-    return p_i;
-}
-
-void ImageFolder::setImages(QList<Image> list)
-{
-    p_images = list;
-    p_i = 0;
-    p_i_memory = 0;
-}
-
-void ImageFolder::removeCurrent()
-{
-    p_images.removeAt(p_i);
-    
-    if (p_i > 0)
-    {
-        p_i--;
-    }
-}
-
-void ImageFolder::rememberCurrent()
-{
-    p_i_memory = p_i;
-}
-
-void ImageFolder::restoreMemory()
-{
-    if (p_i_memory < images().size())
-    {
-        p_i = p_i_memory;
-    }
-}
-
-Image * ImageFolder::current()
-{
-    return &p_images[p_i];
-}
-
-Image * ImageFolder::next()
-{
-    if (p_i < p_images.size() - 1)
-    {
-        p_i++;
-    }
-    
-    return &p_images[p_i];
-}
-
-Image * ImageFolder::previous()
-{
-    if (p_i > 0)
-    {
-        p_i--;
-    }
-    
-    return &p_images[p_i];
-}
-
-Image * ImageFolder::begin()
-{
-    p_i = 0;    
-    return &p_images[p_i];
-}
-
-const QList<Image> & ImageFolder::images() const
-{
-    return p_images;
-}
-
-const bool ImageFolder::operator == (const ImageFolder& other) const
-{
-    if (this->path() == other.path()) return true;
-    else return false;
-}
-
-QDataStream &operator<<(QDataStream &out, const ImageFolder &image_folder)
-{
-    out << image_folder.path() << image_folder.images();
-    
-    return out;
-}
-
-QDataStream &operator>>(QDataStream &in, ImageFolder &image_folder)
-{
-    QString path;
-    QList<Image> images;
-
-    in >> path >> images;
-    image_folder.setPath(path);
-    image_folder.setImages(images);
-    
-    return in;
-}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      folder_iterator(folders.begin()),
+//      folder_iterator(folders.begin()),
       hasPendingChanges(false),
       integration_mode(0)
 {
@@ -261,7 +93,7 @@ void MainWindow::setIntegrationMode(int value)
 
 void MainWindow::setIntegrationResults(double sum, int err)
 {
-    QRectF selection = folder_iterator->current()->selection();
+    QRectF selection = folderSet.current()->current()->selection();
     
 //    integration_sum = sum;
 //    error = err;
@@ -283,9 +115,9 @@ void MainWindow::setIntegrationResults(double sum, int err)
 
 void MainWindow::integrateSingle()
 {
-    if (folders.size() <= 0) return;
-//        emit pathChanged(folder_iterator->next()->path());
-//        emit selectionChanged(folder_iterator->current()->selection());
+    if (folderSet.size() <= 0) return;
+//        emit pathChanged(folderSet.current()->next()->path());
+//        emit selectionChanged(folderSet.current()->current()->selection());
     
     {
 //        double value = integrate(selection, frame);
@@ -308,10 +140,10 @@ void MainWindow::integrateSingle()
 //        int error = 0;
 //        double integration_sum = 0;
         
-//        qDebug() << folder_iterator->next()->path() << selection;
+//        qDebug() << folderSet.current()->next()->path() << selection;
         emit outputTextChanged(str);
         
-        emit integrateCurrentFrame(folder_iterator->current()->path(), folder_iterator->current()->selection());
+        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
 //        QCoreApplication::processEvents();
         
 //        qDebug() << integration_sum << error;
@@ -335,18 +167,18 @@ void MainWindow::integrateFolder()
     
     emit outputTextChanged(str);
 
-    folder_iterator->rememberCurrent();
+    folderSet.current()->rememberCurrent();
     
-    folder_iterator->begin();
+    folderSet.current()->begin();
     
-    for (int i = 0; i < folder_iterator->size(); i++)
+    for (int i = 0; i < folderSet.current()->size(); i++)
     {
-        emit integrateCurrentFrame(folder_iterator->current()->path(), folder_iterator->current()->selection());
+        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
         
-        folder_iterator->next();
+        folderSet.current()->next();
     }
     
-    folder_iterator->restoreMemory();
+    folderSet.current()->restoreMemory();
 }
 
 void MainWindow::initLayout()
@@ -617,33 +449,33 @@ void MainWindow::setStartConditions()
 
 void MainWindow::applySelectionToFolder()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
-        QRectF selection = folder_iterator->current()->selection();
+        QRectF selection = folderSet.current()->current()->selection();
         
-        folder_iterator->rememberCurrent();
+        folderSet.current()->rememberCurrent();
         
-        folder_iterator->begin();
+        folderSet.current()->begin();
         
-        for (int i = 0; i < folder_iterator->size(); i++)
+        for (int i = 0; i < folderSet.current()->size(); i++)
         {
-            folder_iterator->current()->setSelection(selection);
-            folder_iterator->next();
+            folderSet.current()->current()->setSelection(selection);
+            folderSet.current()->next();
         }
         
-        folder_iterator->restoreMemory();
+        folderSet.current()->restoreMemory();
     }
 }
 
 void MainWindow::applySelectionToNext()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
-        QRectF selection = folder_iterator->current()->selection();
-        folder_iterator->next()->setSelection(selection);
+        QRectF selection = folderSet.current()->current()->selection();
+        folderSet.current()->next()->setSelection(selection);
         
-        emit pathChanged(folder_iterator->current()->path());
-        emit selectionChanged(folder_iterator->current()->selection());
+        emit pathChanged(folderSet.current()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 
@@ -660,9 +492,9 @@ void MainWindow::setHeader(QString path)
 
 void MainWindow::setSelection(QRectF rect)
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
-        folder_iterator->current()->setSelection(rect);
+        folderSet.current()->current()->setSelection(rect);
         
         hasPendingChanges = true;
     }
@@ -682,7 +514,7 @@ void MainWindow::saveProject()
         {
             QDataStream out(&file);
             
-            out << folders;
+            out << folderSet;
             out << tsfTextureComboBox->currentText();
             out << tsfAlphaComboBox->currentText();
             out << (double) dataMinDoubleSpinBox->value();
@@ -706,7 +538,8 @@ void MainWindow::loadProject()
         QFile file(path);
         if (file.open(QIODevice::ReadOnly))
         {
-            QList<ImageFolder> folder_map;
+//            QList<ImageFolder> folder_map;
+//            FolderSet folder_set;
             QString tsfTexture;
             QString tsfAlpha;
             double dataMin;
@@ -716,10 +549,10 @@ void MainWindow::loadProject()
             
             QDataStream in(&file);
             
-            in >> folder_map >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> correction;
+            in >> folderSet >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> correction;
             
-            folders = folder_map;
-            folder_iterator = folders.begin();
+//            folders = folder_map;
+//            folder_iterator = folders.begin();
             
             tsfTextureComboBox->setCurrentText(tsfTexture);
             tsfAlphaComboBox->setCurrentText(tsfAlpha);
@@ -735,20 +568,20 @@ void MainWindow::loadProject()
 
 void MainWindow::removeImage()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
-        emit pathRemoved(folder_iterator->current()->path());
+        emit pathRemoved(folderSet.current()->current()->path());
         
-        folder_iterator->removeCurrent();
+        folderSet.current()->removeCurrent();
+
+        if (folderSet.current()->size() == 0) folderSet.removeCurrent();
         
-        if (folder_iterator->size() == 0) folders.removeAll(*folder_iterator);
+//        qDebug() << folders.size() << folderSet.current()->size() << folderSet.current()->i();
         
-//        qDebug() << folders.size() << folder_iterator->size() << folder_iterator->i();
-        
-        if (folders.size() > 0)
+        if (folderSet.size() > 0)
         {
-            emit pathChanged(folder_iterator->next()->path());
-            emit selectionChanged(folder_iterator->current()->selection());
+            emit pathChanged(folderSet.current()->next()->path());
+            emit selectionChanged(folderSet.current()->current()->selection());
         }
     }
 }
@@ -792,7 +625,7 @@ void MainWindow::loadPaths()
 
 void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
 {
-    folders.clear();
+    folderSet.clear();
     
     QMap<QString, QStringList>::const_iterator i = folder_map.constBegin();
     while (i != folder_map.constEnd())
@@ -803,34 +636,28 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
         QStringList image_strings(i.value());
         QStringList::const_iterator j = image_strings.constBegin();
 
-        QList<Image> image_list;
         while (j != image_strings.constEnd())
         {
             Image image;
 
             image.setPath(*j);
 
-            image_list << image;
-
+            folder << image;
             ++j;
         }
             
-        folder.setImages(image_list);
-        folders << folder;
+        folderSet << folder;
 
         ++i;
     }
-
-
-    folder_iterator = folders.begin();
 
     hasPendingChanges = true;
     //    if (folder_iterator != folders.end())
 //    {
 //        if (folders.size() > 0)
 //        {
-//            emit pathChanged(folder_iterator->current()->path());
-//            emit selectionChanged(folder_iterator->current()->selection());
+//            emit pathChanged(folderSet.current()->current()->path());
+//            emit selectionChanged(folderSet.current()->current()->selection());
 //        }
 //        emit centerImage();
 //    }
@@ -839,78 +666,90 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
 
 void MainWindow::nextFrame()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
-        emit pathChanged(folder_iterator->next()->path());
-        emit selectionChanged(folder_iterator->current()->selection());
+        emit pathChanged(folderSet.current()->next()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 
 void MainWindow::previousFrame()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
-        emit pathChanged(folder_iterator->previous()->path());
-        emit selectionChanged(folder_iterator->current()->selection());
+        emit pathChanged(folderSet.current()->previous()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 
 void MainWindow::batchForward()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
         for (size_t i = 0; i < batch_size; i++)
         {
-            folder_iterator->next();
+            folderSet.current()->next();
         }
         
-        emit pathChanged(folder_iterator->current()->path());
-        emit selectionChanged(folder_iterator->current()->selection());
+        emit pathChanged(folderSet.current()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 void MainWindow::batchBackward()
 {
-    if (folders.size() > 0)
+    if (folderSet.size() > 0)
     {
         for (size_t i = 0; i < batch_size; i++)
         {
-            folder_iterator->previous();
+            folderSet.current()->previous();
         }
         
-        emit pathChanged(folder_iterator->current()->path());
-        emit selectionChanged(folder_iterator->current()->selection());
+        emit pathChanged(folderSet.current()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 void MainWindow::nextFolder()
 {
-    if (folder_iterator != folders.end())
+    if (folderSet.size() > 0)
     {
-        folder_iterator++;
-
-        if (folder_iterator != folders.end())
-        {
-            if (folders.size() > 0)
-            {
-                emit pathChanged(folder_iterator->current()->path());
-                emit selectionChanged(folder_iterator->current()->selection());
-            }
-        }
-        else
-        {
-            folder_iterator--;
-        }
+        emit pathChanged(folderSet.next()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
+
+
+//    if (folder_iterator != folders.end())
+//    {
+//        folder_iterator++;
+
+//        if (folder_iterator != folders.end())
+//        {
+//            if (folders.size() > 0)
+//            {
+//                emit pathChanged(folderSet.current()->current()->path());
+//                emit selectionChanged(folderSet.current()->current()->selection());
+//            }
+//        }
+//        else
+//        {
+//            folder_iterator--;
+//        }
+//    }
 }
 void MainWindow::previousFolder()
 {
-    if (folder_iterator != folders.begin())
+    if (folderSet.size() > 0)
     {
-        folder_iterator--;
-
-        if (folders.size() > 0)
-        {
-            emit pathChanged(folder_iterator->current()->path());
-            emit selectionChanged(folder_iterator->current()->selection());
-        }
+        emit pathChanged(folderSet.previous()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
     }
+//    if (folder_iterator != folders.begin())
+//    {
+//        folder_iterator--;
+
+//        if (folders.size() > 0)
+//        {
+//            emit pathChanged(folderSet.current()->current()->path());
+//            emit selectionChanged(folderSet.current()->current()->selection());
+//        }
+//    }
 }

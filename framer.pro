@@ -36,7 +36,8 @@ SOURCES += main.cpp\
     lib/qxlib/qxsvo/utils/bricknode.cpp \
     lib/qxlib/qxsvo/utils/searchnode.cpp \
     lib/qxlib/qxsvo/utils/sparsevoxelocttree.cpp \
-    lib/qxlib/qxsvo/qxsvolib.cpp
+    lib/qxlib/qxsvo/qxsvolib.cpp \
+    lib/qxlib/qxfile/utils/framecontainer.cpp
 
 HEADERS  += mainwindow.h \ 
     lib/qxlib/qxfile/utils/fileformat.h \
@@ -61,7 +62,8 @@ HEADERS  += mainwindow.h \
     lib/qxlib/qxsvo/utils/searchnode.h \
     lib/qxlib/qxsvo/utils/sparsevoxelocttree.h \
     lib/qxlib/qxsvo/qxsvolib.h \
-    lib/qxlib/qxlib.h
+    lib/qxlib/qxlib.h \
+    lib/qxlib/qxfile/utils/framecontainer.h
 
 OTHER_FILES += \
     lib/qxlib/qxopengl/glsl/std_2d_col.f.glsl \
