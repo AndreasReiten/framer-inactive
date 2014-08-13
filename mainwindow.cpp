@@ -173,16 +173,21 @@ MainWindow::MainWindow(QWidget *parent)
     QString style( styleFile.readAll() );
     styleFile.close();
     this->setStyleSheet(style);
+//qDebug() << "got here";
 
     // UI
     initLayout();
+//qDebug() << "got here";
 
     // Session settings
     readSettings();
+//qDebug() << "got here";
 
     // Set start conditions
     setStartConditions();
+//qDebug() << "got here";
 }
+
 
 MainWindow::~MainWindow()
 {
