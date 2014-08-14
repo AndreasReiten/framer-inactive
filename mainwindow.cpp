@@ -195,7 +195,9 @@ void MainWindow::initLayout()
     connect(fileFilter, SIGNAL(textChanged(QString)), fileSelectionModel, SLOT(setStringFilter(QString)));
     fileFilter->setText("*.cbf");
     
-    loadPathsPushButton = new QPushButton(QIcon(":/art/download.png"),"Load selected files"); //QIcon(":/art/rotate_down.png"),
+    loadPathsPushButton = new QPushButton;//(QIcon(":/art/download.png"),"Load selected files"); //QIcon(":/art/rotate_down.png"),
+    loadPathsPushButton->setIcon(QIcon(":/art/download.png"));
+    loadPathsPushButton->setIconSize(QSize(86,86));
     connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
     
     QGridLayout * fileWidgetLayout = new QGridLayout;
@@ -658,7 +660,14 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
 
         ++i;
     }
-
+    
+    if (folderSet.size() > 0) 
+    {
+        emit pathChanged(folderSet.current()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
+        emit centerImage();
+    }
+    
     hasPendingChanges = true;
     //    if (folder_iterator != folders.end())
 //    {
