@@ -195,7 +195,7 @@ void MainWindow::initLayout()
     connect(fileFilter, SIGNAL(textChanged(QString)), fileSelectionModel, SLOT(setStringFilter(QString)));
     fileFilter->setText("*.cbf");
     
-    loadPathsPushButton = new QPushButton("Load selected files"); //QIcon(":/art/rotate_down.png"),
+    loadPathsPushButton = new QPushButton(QIcon(":/art/download.png"),"Load selected files"); //QIcon(":/art/rotate_down.png"),
     connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
     
     QGridLayout * fileWidgetLayout = new QGridLayout;
@@ -235,10 +235,14 @@ void MainWindow::initLayout()
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
 
     // Dock widget
-    nextFramePushButton = new QPushButton(QIcon(":/art/forward.png"),"Next file");
-    previousFramePushButton = new QPushButton(QIcon(":/art/back.png"),"Previous file");
-    batchForwardPushButton = new QPushButton(QIcon(":/art/fast_forward.png"),"Fast forward");
-    batchBackwardPushButton = new QPushButton(QIcon(":/art/fast_back.png"),"Fast backward");
+    nextFramePushButton = new QPushButton;
+    nextFramePushButton->setIcon(QIcon(":/art/forward.png"));
+    previousFramePushButton = new QPushButton;
+    previousFramePushButton->setIcon(QIcon(":/art/back.png"));
+    batchForwardPushButton = new QPushButton;
+    batchForwardPushButton->setIcon(QIcon(":/art/fast_forward.png"));
+    batchBackwardPushButton = new QPushButton;
+    batchBackwardPushButton->setIcon(QIcon(":/art/fast_back.png"));
     batch_size = 10;
     nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next folder");
     previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
@@ -249,15 +253,16 @@ void MainWindow::initLayout()
     
     QGridLayout * navigationLayout = new QGridLayout;
 //    navigationLayout->addWidget(loadPathsPushButton,0,0,1,2);
-    navigationLayout->addWidget(nextFramePushButton,1,1,1,1);
-    navigationLayout->addWidget(previousFramePushButton,1,0,1,1);
-    navigationLayout->addWidget(batchForwardPushButton,2,1,1,1);
-    navigationLayout->addWidget(batchBackwardPushButton,2,0,1,1);
-    navigationLayout->addWidget(nextFolderPushButton,3,1,1,1);
-    navigationLayout->addWidget(previousFolderPushButton,3,0,1,1);
-    navigationLayout->addWidget(removeCurrentPushButton, 4, 0, 1, 2); 
-    navigationLayout->addWidget(applySelectionToNextPushButton, 5, 0, 1 , 2);
-    navigationLayout->addWidget(applySelectionToFolderPushButton, 6, 0, 1 , 2); 
+    navigationLayout->addWidget(previousFolderPushButton,0,0,1,1);
+    navigationLayout->addWidget(batchBackwardPushButton,0,1,1,1);
+    navigationLayout->addWidget(previousFramePushButton,0,2,1,1);
+    navigationLayout->addWidget(nextFramePushButton,0,3,1,1);
+    navigationLayout->addWidget(batchForwardPushButton,0,4,1,1);
+    navigationLayout->addWidget(nextFolderPushButton,0,5,1,1);
+    
+    navigationLayout->addWidget(removeCurrentPushButton, 4, 0, 1, 6); 
+    navigationLayout->addWidget(applySelectionToNextPushButton, 5, 0, 1 , 6);
+    navigationLayout->addWidget(applySelectionToFolderPushButton, 6, 0, 1 , 6); 
     
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
@@ -277,7 +282,7 @@ void MainWindow::initLayout()
     navigationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     navigationDock->setWidget(navigationWidget);
     navigationDock->setFixedHeight(navigationWidget->minimumSizeHint().height()*1.2);
-    imageWidget->addDockWidget(Qt::RightDockWidgetArea, navigationDock);
+    imageWidget->addDockWidget(Qt::BottomDockWidgetArea, navigationDock);
     
     // Dock widget
     imageModeComboBox = new QComboBox;
@@ -302,11 +307,13 @@ void MainWindow::initLayout()
     dataMinDoubleSpinBox = new QDoubleSpinBox;
     dataMinDoubleSpinBox->setRange(-1e9,1e9);
     dataMinDoubleSpinBox->setAccelerated(true);
+    dataMinDoubleSpinBox->setPrefix("Data min: ");
 
     dataMaxDoubleSpinBox = new QDoubleSpinBox;
     dataMaxDoubleSpinBox->setRange(-1e9,1e9);
     dataMaxDoubleSpinBox->setAccelerated(true);
-
+    dataMaxDoubleSpinBox->setPrefix("Data max: ");
+    
     logCheckBox = new QCheckBox("Log");
     correctionCheckBox = new QCheckBox("Corrections");
 
@@ -314,10 +321,10 @@ void MainWindow::initLayout()
     settingsLayout->addWidget(imageModeComboBox,0,1,1,2);
     settingsLayout->addWidget(tsfTextureComboBox,1,1,1,1);
     settingsLayout->addWidget(tsfAlphaComboBox,1,2,1,1);
-    settingsLayout->addWidget(dataMinDoubleSpinBox,2,1,1,1);
-    settingsLayout->addWidget(dataMaxDoubleSpinBox,2,2,1,1);
-    settingsLayout->addWidget(logCheckBox,3,1,1,1);
-    settingsLayout->addWidget(correctionCheckBox,3,2,1,1);
+    settingsLayout->addWidget(dataMinDoubleSpinBox,2,1,1,2);
+    settingsLayout->addWidget(dataMaxDoubleSpinBox,3,1,1,2);
+    settingsLayout->addWidget(logCheckBox,4,1,1,1);
+    settingsLayout->addWidget(correctionCheckBox,4,2,1,1);
 
 
     settingsWidget = new QWidget;
@@ -357,11 +364,12 @@ void MainWindow::initLayout()
 
 
     connect(this, SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
+    connect(fileTreeView, SIGNAL(fileChanged(QString)), this, SLOT(setHeader(QString)));
 
     headerDock = new QDockWidget("Header");
     headerDock->setWidget(imageHeaderWidget);
     headerDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-    imageWidget->addDockWidget(Qt::RightDockWidgetArea, headerDock);
+    this->addDockWidget(Qt::RightDockWidgetArea, headerDock);
     
     // Set the OpenCL context
     context_cl = new OpenCLContext;
