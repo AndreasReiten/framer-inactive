@@ -71,14 +71,17 @@ void MainWindow::integrateSelectedMode()
     switch (integration_mode)
     {
         case 0: // Single
-            integrateSingle();
+//            integrateSingle();
+            emit integrateImage(*folderSet.current()->current()); 
             break;
 
         case 1: // Folder
-            integrateFolder();
+//            integrateFolder();
+            emit integrateFolder(*folderSet.current());
             break;
 
         case 2: // All
+            emit integrateSet(folderSet);
             break;
 
         default: // Should not occur
@@ -423,8 +426,14 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
-    connect(this,SIGNAL(integrateCurrentFrame(QString, QRectF)), imagePreviewWindow->getWorker(), SLOT(integrate(QString,QRectF)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(integrationCompleted(double,int)), this, SLOT(setIntegrationResults(double,int)));
+//    connect(this,SIGNAL(integrateCurrentFrame(QString, QRectF)), imagePreviewWindow->getWorker(), SLOT(integrate(QString,QRectF)));
+//    connect(imagePreviewWindow->getWorker(), SIGNAL(integrationCompleted(double,int)), this, SLOT(setIntegrationResults(double,int)));
+    
+    
+    
+    connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(integrateSingle(Image)));
+    connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
+    connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
     
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
@@ -432,7 +441,7 @@ void MainWindow::initLayout()
     
     connect(this, SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
     connect(this, SIGNAL(outputTextAppended(QString)),outputPlainTextEdit,SLOT(appendPlainText(QString)));
-    
+    connect(imagePreviewWindow->getWorker(), SIGNAL(resultFinished(QString)), outputPlainTextEdit, SLOT(setPlainText(QString)));
 
     // Tab widget    
     tabWidget =  new QTabWidget;

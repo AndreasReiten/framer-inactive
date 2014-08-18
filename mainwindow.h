@@ -52,6 +52,9 @@ signals:
     void outputTextAppended(QString str);
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRectF rect);
+    void integrateImage(Image image);
+    void integrateFolder(ImageFolder folder);
+    void integrateSet(FolderSet set);
 
 public:
     MainWindow(QWidget *parent = 0);

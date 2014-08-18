@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QApplication>
 #include <fstream>
+#include "lib/qxlib/qxlib.h"
 
 void writeToLogAndPrint(QString text, QString file, bool append)
 {
@@ -56,6 +57,11 @@ int main(int argc, char *argv[])
     // Handle Qt messages
     qInstallMessageHandler(appOutput);
 
+    
+    qRegisterMetaType<Image>();
+    qRegisterMetaType<ImageFolder>();
+    qRegisterMetaType<FolderSet>();
+    
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
