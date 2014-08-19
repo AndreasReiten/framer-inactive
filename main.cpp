@@ -6,7 +6,7 @@
 void writeToLogAndPrint(QString text, QString file, bool append)
 {
     QDateTime dateTime = dateTime.currentDateTime();
-    QString dateTimeString = QString("["+dateTime.toString("hh:mm:ss")+"] ");
+    QString dateTimeString = QString("["+dateTime.toString("yyyy.MM.dd hh:mm:ss:zzz")+"] ");
 
     std::ofstream myfile (file.toStdString().c_str(), std::ios::out | ((append == true) ? std::ios::app : std::ios::trunc));
     if (myfile.is_open())

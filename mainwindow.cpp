@@ -217,7 +217,7 @@ void MainWindow::initLayout()
     // Toolbar
     pathLineEdit = new QLineEdit("/path/to/file");
     pathLineEdit->setReadOnly(true);
-    connect(this, SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
+//    connect(this, SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
 
     imageToolBar = new QToolBar("Image");
 
@@ -368,7 +368,6 @@ void MainWindow::initLayout()
     imageHeaderWidget->setReadOnly(true);
 
 
-    connect(this, SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
     connect(fileTreeView, SIGNAL(fileChanged(QString)), this, SLOT(setHeader(QString)));
 
     headerDock = new QDockWidget("Header");
@@ -381,6 +380,8 @@ void MainWindow::initLayout()
 
     // Set the format of the rendering context
     QSurfaceFormat format_gl;
+    format_gl.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
+    format_gl.setSwapInterval(1);
     format_gl.setSamples(16);
     format_gl.setRedBufferSize(8);
     format_gl.setGreenBufferSize(8);
@@ -401,7 +402,7 @@ void MainWindow::initLayout()
     imagePreviewWindow->setSharedWindow(sharedContextWindow);
     imagePreviewWindow->setFormat(format_gl);
     imagePreviewWindow->setOpenCLContext(context_cl);
-    imagePreviewWindow->setAnimating(true);
+//    imagePreviewWindow->setAnimating(true);
     imagePreviewWindow->initializeWorker();
 
     // Apply the rendering surface to a widget
@@ -426,6 +427,8 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
 //    connect(this,SIGNAL(integrateCurrentFrame(QString, QRectF)), imagePreviewWindow->getWorker(), SLOT(integrate(QString,QRectF)));
 //    connect(imagePreviewWindow->getWorker(), SIGNAL(integrationCompleted(double,int)), this, SLOT(setIntegrationResults(double,int)));
     
