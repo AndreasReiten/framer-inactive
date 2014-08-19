@@ -46,7 +46,6 @@ public slots:
 signals:
     void pathRemoved(QString path);
     void pathChanged(QString path);
-//    void frameChanged(QString path, QRectF region);
     void centerImage();
     void selectionChanged(QRectF rect);
     void outputTextAppended(QString str);
@@ -102,7 +101,6 @@ private:
     QPushButton * applySelectionToFolderPushButton;
     QPushButton * applySelectionToNextPushButton;
     QPushButton * removeCurrentPushButton;
-//    QSpinBox * frameIndexSpinBox;
 
     QComboBox * imageModeComboBox;
     QComboBox * tsfTextureComboBox;
@@ -130,9 +128,6 @@ private:
 
     FolderSet folderSet;
 
-//    QList<ImageFolder> folders;
-//    QList<ImageFolder>::iterator folder_iterator;
-    
     bool hasPendingChanges;
     int integration_mode;
     

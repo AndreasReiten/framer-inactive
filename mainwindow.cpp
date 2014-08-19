@@ -11,7 +11,6 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-//      folder_iterator(folders.begin()),
       hasPendingChanges(false),
       integration_mode(0)
 {
@@ -21,19 +20,15 @@ MainWindow::MainWindow(QWidget *parent)
     QString style( styleFile.readAll() );
     styleFile.close();
     this->setStyleSheet(style);
-//qDebug() << "got here";
 
     // UI
     initLayout();
-//qDebug() << "got here";
 
     // Session settings
     readSettings();
-//qDebug() << "got here";
 
     // Set start conditions
     setStartConditions();
-//qDebug() << "got here";
 }
 
 
@@ -71,12 +66,10 @@ void MainWindow::integrateSelectedMode()
     switch (integration_mode)
     {
         case 0: // Single
-//            integrateSingle();
             emit integrateImage(*folderSet.current()->current()); 
             break;
 
         case 1: // Folder
-//            integrateFolder();
             emit integrateFolder(*folderSet.current());
             break;
 
@@ -98,14 +91,11 @@ void MainWindow::setIntegrationResults(double sum, int err)
 {
     QRectF selection = folderSet.current()->current()->selection();
     
-//    integration_sum = sum;
-//    error = err;
     QString str;
     QString region_str = QString::number(selection.normalized().left())+" "+QString::number(selection.normalized().top())+" "+QString::number(selection.normalized().width())+" "+QString::number(selection.normalized().height());
     
     if (err == 0)
     {
-//            double integration_sum = integrate(selection, frame);
         str += QString::number(sum,'E')+" "+region_str;
     }
     else 
@@ -119,41 +109,16 @@ void MainWindow::setIntegrationResults(double sum, int err)
 void MainWindow::integrateSingle()
 {
     if (folderSet.size() <= 0) return;
-//        emit pathChanged(folderSet.current()->next()->path());
-//        emit selectionChanged(folderSet.current()->current()->selection());
-    
     {
-//        double value = integrate(selection, frame);
-    
-//        qDebug() << "go at it";
-        
         QString str;
                 
         str += "# SINGLE FRAME INTEGRATION\n";
         str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
         str += "#\n";
         str += "#\n# Integrated intensity, origin x y, size w h\n";
-//        str += frame.info();
-//        str += "#\n# AREA\n";
-//        str += QString("# Origin x y [pixels]: "+QString::number(selection.normalized().left())+" "+QString::number(selection.normalized().top())+"\n");
-//        str += QString("# Region w h [pixels]: "+QString::number(selection.normalized().width())+" "+QString::number(selection.normalized().height())+"\n");
-//        str += "#\n# Integrated intensity\n";
-//        str += QString::number(value,'E');
-        
-//        int error = 0;
-//        double integration_sum = 0;
-        
-//        qDebug() << folderSet.current()->next()->path() << selection;
         emit outputTextChanged(str);
         
         emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
-//        QCoreApplication::processEvents();
-        
-//        qDebug() << integration_sum << error;
-        
-        
-        
-        
     }
 }
 
@@ -198,7 +163,7 @@ void MainWindow::initLayout()
     connect(fileFilter, SIGNAL(textChanged(QString)), fileSelectionModel, SLOT(setStringFilter(QString)));
     fileFilter->setText("*.cbf");
     
-    loadPathsPushButton = new QPushButton;//(QIcon(":/art/download.png"),"Load selected files"); //QIcon(":/art/rotate_down.png"),
+    loadPathsPushButton = new QPushButton;
     loadPathsPushButton->setIcon(QIcon(":/art/download.png"));
     loadPathsPushButton->setIconSize(QSize(86,86));
     connect(loadPathsPushButton, SIGNAL(clicked()), this, SLOT(loadPaths()));
@@ -217,7 +182,6 @@ void MainWindow::initLayout()
     // Toolbar
     pathLineEdit = new QLineEdit("/path/to/file");
     pathLineEdit->setReadOnly(true);
-//    connect(this, SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
 
     imageToolBar = new QToolBar("Image");
 
@@ -257,7 +221,6 @@ void MainWindow::initLayout()
     applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
     
     QGridLayout * navigationLayout = new QGridLayout;
-//    navigationLayout->addWidget(loadPathsPushButton,0,0,1,2);
     navigationLayout->addWidget(previousFolderPushButton,0,0,1,1);
     navigationLayout->addWidget(batchBackwardPushButton,0,1,1,1);
     navigationLayout->addWidget(previousFramePushButton,0,2,1,1);
@@ -402,7 +365,6 @@ void MainWindow::initLayout()
     imagePreviewWindow->setSharedWindow(sharedContextWindow);
     imagePreviewWindow->setFormat(format_gl);
     imagePreviewWindow->setOpenCLContext(context_cl);
-//    imagePreviewWindow->setAnimating(true);
     imagePreviewWindow->initializeWorker();
 
     // Apply the rendering surface to a widget
@@ -429,11 +391,6 @@ void MainWindow::initLayout()
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
-//    connect(this,SIGNAL(integrateCurrentFrame(QString, QRectF)), imagePreviewWindow->getWorker(), SLOT(integrate(QString,QRectF)));
-//    connect(imagePreviewWindow->getWorker(), SIGNAL(integrationCompleted(double,int)), this, SLOT(setIntegrationResults(double,int)));
-    
-    
-    
     connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(integrateSingle(Image)));
     connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
     connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
@@ -560,8 +517,6 @@ void MainWindow::loadProject()
         QFile file(path);
         if (file.open(QIODevice::ReadOnly))
         {
-//            QList<ImageFolder> folder_map;
-//            FolderSet folder_set;
             QString tsfTexture;
             QString tsfAlpha;
             double dataMin;
@@ -573,8 +528,6 @@ void MainWindow::loadProject()
             
             in >> folderSet >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> correction;
             
-//            folders = folder_map;
-//            folder_iterator = folders.begin();
             
             tsfTextureComboBox->setCurrentText(tsfTexture);
             tsfAlphaComboBox->setCurrentText(tsfAlpha);
@@ -597,8 +550,6 @@ void MainWindow::removeImage()
         folderSet.current()->removeCurrent();
 
         if (folderSet.current()->size() == 0) folderSet.removeCurrent();
-        
-//        qDebug() << folders.size() << folderSet.current()->size() << folderSet.current()->i();
         
         if (folderSet.size() > 0)
         {
@@ -628,12 +579,10 @@ void MainWindow::loadPaths()
         case QMessageBox::Save:
             // Save was clicked
             saveProject();
-//            tabWidget->setCurrentIndex(1);
             setFiles(fileSelectionModel->getPaths());
             break;
         case QMessageBox::Discard:
             // Discard was clicked
-//            tabWidget->setCurrentIndex(1);
             setFiles(fileSelectionModel->getPaths());
             break;
         case QMessageBox::Cancel:
@@ -681,15 +630,6 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
     }
     
     hasPendingChanges = true;
-    //    if (folder_iterator != folders.end())
-//    {
-//        if (folders.size() > 0)
-//        {
-//            emit pathChanged(folderSet.current()->current()->path());
-//            emit selectionChanged(folderSet.current()->current()->selection());
-//        }
-//        emit centerImage();
-//    }
 }
 
 
@@ -744,25 +684,6 @@ void MainWindow::nextFolder()
         emit pathChanged(folderSet.next()->current()->path());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
-
-
-//    if (folder_iterator != folders.end())
-//    {
-//        folder_iterator++;
-
-//        if (folder_iterator != folders.end())
-//        {
-//            if (folders.size() > 0)
-//            {
-//                emit pathChanged(folderSet.current()->current()->path());
-//                emit selectionChanged(folderSet.current()->current()->selection());
-//            }
-//        }
-//        else
-//        {
-//            folder_iterator--;
-//        }
-//    }
 }
 void MainWindow::previousFolder()
 {
@@ -771,14 +692,4 @@ void MainWindow::previousFolder()
         emit pathChanged(folderSet.previous()->current()->path());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
-//    if (folder_iterator != folders.begin())
-//    {
-//        folder_iterator--;
-
-//        if (folders.size() > 0)
-//        {
-//            emit pathChanged(folderSet.current()->current()->path());
-//            emit selectionChanged(folderSet.current()->current()->selection());
-//        }
-//    }
 }
