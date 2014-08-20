@@ -394,7 +394,8 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(integrateSingle(Image)));
     connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
     connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
-    
+    connect(imagePreviewWindow,SIGNAL(selectionActiveChanged(bool)), squareAreaSelectAction, SLOT(setChecked(bool)));
+    connect(imagePreviewWindow,SIGNAL(setFocus()),imageDisplayWidget,SLOT(setFocus()));
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
     outputPlainTextEdit->setReadOnly(true);
