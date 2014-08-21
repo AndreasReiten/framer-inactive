@@ -81,6 +81,12 @@ void MainWindow::integrateSelectedMode()
         default: // Should not occur
             break;
     }
+
+    if (folderSet.size() > 0)
+    {
+        emit pathChanged(folderSet.current()->current()->path());
+        emit selectionChanged(folderSet.current()->current()->selection());
+    }
 }
 
 
@@ -136,48 +142,48 @@ void MainWindow::setIntegrationResults(double sum, int err)
     emit outputTextAppended(str);
 }
 
-void MainWindow::integrateSingle()
-{
-    if (folderSet.size() <= 0) return;
-    {
-        QString str;
+//void MainWindow::integrateSingle()
+//{
+//    if (folderSet.size() <= 0) return;
+//    {
+//        QString str;
                 
-        str += "# SINGLE FRAME INTEGRATION\n";
-        str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
-        str += "#\n";
-        str += "#\n# Integrated intensity, origin x y, size w h\n";
-        emit outputTextChanged(str);
+//        str += "# SINGLE FRAME INTEGRATION\n";
+//        str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
+//        str += "#\n";
+//        str += "#\n# Integrated intensity, origin x y, size w h\n";
+//        emit outputTextChanged(str);
         
-        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
-    }
-}
+//        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
+//    }
+//}
 
 
 
-void MainWindow::integrateFolder()
-{
-    QString str;
+//void MainWindow::integrateFolder()
+//{
+//    QString str;
             
-    str += "# FOLDER INTEGRATION\n";
-    str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
-    str += "#\n";
-    str += "#\n# Integrated intensity, origin x y, size w h\n";
+//    str += "# FOLDER INTEGRATION\n";
+//    str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
+//    str += "#\n";
+//    str += "#\n# Integrated intensity, origin x y, size w h\n";
     
-    emit outputTextChanged(str);
+//    emit outputTextChanged(str);
 
-    folderSet.current()->rememberCurrent();
+//    folderSet.current()->rememberCurrent();
     
-    folderSet.current()->begin();
+//    folderSet.current()->begin();
     
-    for (int i = 0; i < folderSet.current()->size(); i++)
-    {
-        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
+//    for (int i = 0; i < folderSet.current()->size(); i++)
+//    {
+//        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
         
-        folderSet.current()->next();
-    }
+//        folderSet.current()->next();
+//    }
     
-    folderSet.current()->restoreMemory();
-}
+//    folderSet.current()->restoreMemory();
+//}
 
 void MainWindow::initLayout()
 {
@@ -625,6 +631,13 @@ void MainWindow::loadProject()
             correctionCheckBox->setChecked(correction);
             
             file.close();
+
+            if (folderSet.size() > 0)
+            {
+                emit pathChanged(folderSet.current()->current()->path());
+                emit selectionChanged(folderSet.current()->current()->selection());
+                emit centerImage();
+            }
         }
     }
 }

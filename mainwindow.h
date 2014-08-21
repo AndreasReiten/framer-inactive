@@ -38,8 +38,8 @@ public slots:
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
     void removeImage();
-    void integrateSingle();
-    void integrateFolder();
+//    void integrateSingle();
+//    void integrateFolder();
     void integrateSelectedMode();
     void applySelectionMode();
     void setSelectionMode(int value);
