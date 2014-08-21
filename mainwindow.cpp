@@ -249,14 +249,9 @@ void MainWindow::initLayout()
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
 //    applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
 //    applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
-    applySelectionPushButton  = new QPushButton("Apply selection");
+
     
-    selectionModeComboBox = new QComboBox;
-    selectionModeComboBox->addItem("Next");
-    selectionModeComboBox->addItem("Folder");
-    selectionModeComboBox->addItem("All");
-    
-    
+
     
     QGridLayout * navigationLayout = new QGridLayout;
     navigationLayout->addWidget(previousFolderPushButton,0,0,1,1);
@@ -265,10 +260,7 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(nextFramePushButton,0,3,1,1);
     navigationLayout->addWidget(batchForwardPushButton,0,4,1,1);
     navigationLayout->addWidget(nextFolderPushButton,0,5,1,1);
-    
-    navigationLayout->addWidget(selectionModeComboBox, 4, 0, 1, 6); 
-    navigationLayout->addWidget(applySelectionPushButton, 5, 0, 1 , 6);
-    navigationLayout->addWidget(removeCurrentPushButton, 6, 0, 1 , 6); 
+    navigationLayout->addWidget(removeCurrentPushButton, 1, 4, 1 , 2);
     
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
@@ -343,6 +335,27 @@ void MainWindow::initLayout()
     settingsDock->setFixedHeight(settingsWidget->minimumSizeHint().height()*1.2);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, settingsDock);
     
+    // Dock widget
+    applySelectionPushButton  = new QPushButton("Apply selection");
+
+    selectionModeComboBox = new QComboBox;
+    selectionModeComboBox->addItem("Next");
+    selectionModeComboBox->addItem("Folder");
+    selectionModeComboBox->addItem("All");
+
+    QGridLayout *selectionLayout = new QGridLayout;
+    selectionLayout->addWidget(selectionModeComboBox, 0, 0, 1, 2);
+    selectionLayout->addWidget(applySelectionPushButton, 1, 0, 1 , 2);
+
+    selectionWidget = new QWidget;
+    selectionWidget->setLayout(selectionLayout);
+
+    selectionDock =  new QDockWidget("Area selection");
+    selectionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    selectionDock->setFixedHeight(selectionWidget->minimumSizeHint().height()*1.2);
+    selectionDock->setWidget(selectionWidget);
+    imageWidget->addDockWidget(Qt::RightDockWidgetArea, selectionDock);
+
     // Dock widget
     integrationModeComboBox = new QComboBox;
     integrationModeComboBox->addItem("Single");
@@ -475,21 +488,29 @@ void MainWindow::applySelectionToAll()
     {
         QRectF selection = folderSet.current()->current()->selection();
         
+        folderSet.rememberCurrent();
+
         folderSet.begin();
-        
+
         for (int i = 0; i < folderSet.size(); i++)
         {        
-        
+//        qDebug() << folderSet.current()->path();
+
+            folderSet.current()->rememberCurrent();
             folderSet.current()->begin();
             
             for (int i = 0; i < folderSet.current()->size(); i++)
             {
+//                qDebug() << folderSet.current()->current()->path();
+
                 folderSet.current()->current()->setSelection(selection);
                 folderSet.current()->next();
             }
+            folderSet.current()->restoreMemory();
+
+            folderSet.next();
         }
-        
-        folderSet.next();
+        folderSet.restoreMemory();
     }
 }
 

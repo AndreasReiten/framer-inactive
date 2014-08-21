@@ -88,10 +88,12 @@ private:
     QDockWidget * settingsDock;
     QDockWidget * calculationDock;
     QDockWidget * headerDock;
+    QDockWidget * selectionDock;
 
     QWidget * navigationWidget;
     QWidget * settingsWidget;
     QWidget * calculationWidget;
+    QWidget * selectionWidget;
 
     QPushButton * loadPathsPushButton;
     QPushButton * nextFramePushButton;
