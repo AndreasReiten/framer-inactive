@@ -31,6 +31,7 @@ public slots:
     void previousFolder();
     void setHeader(QString path);
     void setSelection(QRectF rect);
+    void applySelectionToAll();
     void applySelectionToFolder();
     void applySelectionToNext();
     void saveProject();
@@ -40,6 +41,8 @@ public slots:
     void integrateSingle();
     void integrateFolder();
     void integrateSelectedMode();
+    void applySelectionMode();
+    void setSelectionMode(int value);
     void setIntegrationMode(int value);
     void setIntegrationResults(double sum, int err);
     
@@ -98,10 +101,12 @@ private:
     size_t batch_size;
     QPushButton * nextFolderPushButton;
     QPushButton * previousFolderPushButton;
-    QPushButton * applySelectionToFolderPushButton;
-    QPushButton * applySelectionToNextPushButton;
+//    QPushButton * applySelectionToFolderPushButton;
+//    QPushButton * applySelectionToNextPushButton;
     QPushButton * removeCurrentPushButton;
-
+    QPushButton * applySelectionPushButton;
+    
+    QComboBox * selectionModeComboBox;
     QComboBox * imageModeComboBox;
     QComboBox * tsfTextureComboBox;
     QComboBox * tsfAlphaComboBox;
@@ -130,6 +135,7 @@ private:
 
     bool hasPendingChanges;
     int integration_mode;
+    int selection_mode;
     
     // Integration
     double integration_sum;

@@ -9,10 +9,11 @@
 
 
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),
-      hasPendingChanges(false),
-      integration_mode(0)
+MainWindow::MainWindow(QWidget *parent) : 
+    QMainWindow(parent),
+    hasPendingChanges(false),
+    integration_mode(0),
+    selection_mode(0)
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -80,6 +81,35 @@ void MainWindow::integrateSelectedMode()
         default: // Should not occur
             break;
     }
+}
+
+
+void MainWindow::applySelectionMode()
+{
+
+
+    switch (selection_mode)
+    {
+        case 0: // Single
+            applySelectionToNext();
+            break;
+
+        case 1: // Folder
+            applySelectionToFolder();
+            break;
+
+        case 2: // All
+            applySelectionToAll();
+            break;
+
+        default: // Should not occur
+            break;
+    }
+}
+
+void MainWindow::setSelectionMode(int value)
+{
+    selection_mode = value;
 }
 
 void MainWindow::setIntegrationMode(int value)
@@ -217,8 +247,16 @@ void MainWindow::initLayout()
     previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
     
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
-    applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
-    applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
+//    applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
+//    applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
+    applySelectionPushButton  = new QPushButton("Apply selection");
+    
+    selectionModeComboBox = new QComboBox;
+    selectionModeComboBox->addItem("Next");
+    selectionModeComboBox->addItem("Folder");
+    selectionModeComboBox->addItem("All");
+    
+    
     
     QGridLayout * navigationLayout = new QGridLayout;
     navigationLayout->addWidget(previousFolderPushButton,0,0,1,1);
@@ -228,9 +266,9 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(batchForwardPushButton,0,4,1,1);
     navigationLayout->addWidget(nextFolderPushButton,0,5,1,1);
     
-    navigationLayout->addWidget(removeCurrentPushButton, 4, 0, 1, 6); 
-    navigationLayout->addWidget(applySelectionToNextPushButton, 5, 0, 1 , 6);
-    navigationLayout->addWidget(applySelectionToFolderPushButton, 6, 0, 1 , 6); 
+    navigationLayout->addWidget(selectionModeComboBox, 4, 0, 1, 6); 
+    navigationLayout->addWidget(applySelectionPushButton, 5, 0, 1 , 6);
+    navigationLayout->addWidget(removeCurrentPushButton, 6, 0, 1 , 6); 
     
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
@@ -238,8 +276,8 @@ void MainWindow::initLayout()
     connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
     connect(nextFolderPushButton, SIGNAL(clicked()), this, SLOT(nextFolder()));
     connect(previousFolderPushButton, SIGNAL(clicked()), this, SLOT(previousFolder()));
-    connect(applySelectionToNextPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToNext()));
-    connect(applySelectionToFolderPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToFolder()));
+//    connect(applySelectionToNextPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToNext()));
+//    connect(applySelectionToFolderPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToFolder()));
     connect(removeCurrentPushButton, SIGNAL(clicked()), this, SLOT(removeImage()));
     connect(this, SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
     
@@ -382,20 +420,24 @@ void MainWindow::initLayout()
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
     connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
-    connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
+    
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(selectionChanged(QRectF)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRectF)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
+    connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
+    connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
     connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(integrateSingle(Image)));
     connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
     connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
-    connect(imagePreviewWindow,SIGNAL(selectionActiveChanged(bool)), squareAreaSelectAction, SLOT(setChecked(bool)));
-    connect(imagePreviewWindow,SIGNAL(setFocus()),imageDisplayWidget,SLOT(setFocus()));
+    connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
+//    connect(imagePreviewWindow,SIGNAL(selectionActiveChanged(bool)), squareAreaSelectAction, SLOT(setChecked(bool)));
+//    connect(imagePreviewWindow,SIGNAL(setFocus()),imageDisplayWidget,SLOT(setFocus()));
+    
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
     outputPlainTextEdit->setReadOnly(true);
@@ -425,6 +467,30 @@ void MainWindow::setStartConditions()
     correctionCheckBox->setChecked(true);
     imageModeComboBox->setCurrentIndex(0);
 
+}
+
+void MainWindow::applySelectionToAll()
+{
+    if (folderSet.size() > 0)
+    {
+        QRectF selection = folderSet.current()->current()->selection();
+        
+        folderSet.begin();
+        
+        for (int i = 0; i < folderSet.size(); i++)
+        {        
+        
+            folderSet.current()->begin();
+            
+            for (int i = 0; i < folderSet.current()->size(); i++)
+            {
+                folderSet.current()->current()->setSelection(selection);
+                folderSet.current()->next();
+            }
+        }
+        
+        folderSet.next();
+    }
 }
 
 void MainWindow::applySelectionToFolder()
