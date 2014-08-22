@@ -62,7 +62,7 @@ void MainWindow::writeSettings()
 
 void MainWindow::integrateSelectedMode()
 {
-
+    FolderSet tmp(folderSet);
 
     switch (integration_mode)
     {
@@ -82,6 +82,8 @@ void MainWindow::integrateSelectedMode()
             break;
     }
 
+    folderSet = tmp;
+    
     if (folderSet.size() > 0)
     {
         emit pathChanged(folderSet.current()->current()->path());
@@ -485,7 +487,6 @@ void MainWindow::setStartConditions()
     logCheckBox->setChecked(true);
     correctionCheckBox->setChecked(true);
     imageModeComboBox->setCurrentIndex(0);
-
 }
 
 void MainWindow::applySelectionToAll()
