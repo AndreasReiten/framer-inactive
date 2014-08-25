@@ -501,15 +501,11 @@ void MainWindow::applySelectionToAll()
 
         for (int i = 0; i < folderSet.size(); i++)
         {        
-//        qDebug() << folderSet.current()->path();
-
             folderSet.current()->rememberCurrent();
             folderSet.current()->begin();
             
             for (int i = 0; i < folderSet.current()->size(); i++)
             {
-//                qDebug() << folderSet.current()->current()->path();
-
                 folderSet.current()->current()->setSelection(selection);
                 folderSet.current()->next();
             }
