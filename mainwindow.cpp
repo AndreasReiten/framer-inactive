@@ -84,11 +84,11 @@ void MainWindow::integrateSelectedMode()
 
     folderSet = tmp;
     
-    if (folderSet.size() > 0)
-    {
-        emit pathChanged(folderSet.current()->current()->path());
-        emit selectionChanged(folderSet.current()->current()->selection());
-    }
+//    if (folderSet.size() > 0)
+//    {
+//        emit imageChanged(*folderSet.current()->current());
+//        emit selectionChanged(folderSet.current()->current()->selection());
+//    }
 }
 
 
@@ -127,7 +127,7 @@ void MainWindow::setIntegrationMode(int value)
 
 void MainWindow::setIntegrationResults(double sum, int err)
 {
-    QRectF selection = folderSet.current()->current()->selection();
+    QRect selection = folderSet.current()->current()->selection();
     
     QString str;
     QString region_str = QString::number(selection.normalized().left())+" "+QString::number(selection.normalized().top())+" "+QString::number(selection.normalized().width())+" "+QString::number(selection.normalized().height());
@@ -431,7 +431,8 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
-    connect(this, SIGNAL(pathChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setImageFromPath(QString)));
+//    connect(this, SIGNAL(imageChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setFrame(QString)));
+    connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrame(Image)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
@@ -444,8 +445,8 @@ void MainWindow::initLayout()
     
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
-    connect(this, SIGNAL(selectionChanged(QRectF)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRectF)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRectF)), this, SLOT(setSelection(QRectF)));
+    connect(this, SIGNAL(selectionChanged(QRect)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRect)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRect)), this, SLOT(setSelection(QRect)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
@@ -493,7 +494,7 @@ void MainWindow::applySelectionToAll()
 {
     if (folderSet.size() > 0)
     {
-        QRectF selection = folderSet.current()->current()->selection();
+        QRect selection = folderSet.current()->current()->selection();
         
         folderSet.rememberCurrent();
 
@@ -521,7 +522,7 @@ void MainWindow::applySelectionToFolder()
 {
     if (folderSet.size() > 0)
     {
-        QRectF selection = folderSet.current()->current()->selection();
+        QRect selection = folderSet.current()->current()->selection();
         
         folderSet.current()->rememberCurrent();
         
@@ -541,10 +542,10 @@ void MainWindow::applySelectionToNext()
 {
     if (folderSet.size() > 0)
     {
-        QRectF selection = folderSet.current()->current()->selection();
+        QRect selection = folderSet.current()->current()->selection();
         folderSet.current()->next()->setSelection(selection);
         
-        emit pathChanged(folderSet.current()->current()->path());
+        emit imageChanged(*folderSet.current()->current());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
@@ -560,7 +561,7 @@ void MainWindow::setHeader(QString path)
     imageHeaderWidget->setPlainText(file.getHeaderText());
 }
 
-void MainWindow::setSelection(QRectF rect)
+void MainWindow::setSelection(QRect rect)
 {
     if (folderSet.size() > 0)
     {
@@ -631,7 +632,7 @@ void MainWindow::loadProject()
 
             if (folderSet.size() > 0)
             {
-                emit pathChanged(folderSet.current()->current()->path());
+                emit imageChanged(*folderSet.current()->current());
                 emit selectionChanged(folderSet.current()->current()->selection());
                 emit centerImage();
             }
@@ -651,7 +652,7 @@ void MainWindow::removeImage()
         
         if (folderSet.size() > 0)
         {
-            emit pathChanged(folderSet.current()->next()->path());
+            emit imageChanged(*folderSet.current()->next());
             emit selectionChanged(folderSet.current()->current()->selection());
         }
     }
@@ -722,7 +723,7 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
     
     if (folderSet.size() > 0) 
     {
-        emit pathChanged(folderSet.current()->current()->path());
+        emit imageChanged(*folderSet.current()->current());
         emit selectionChanged(folderSet.current()->current()->selection());
         emit centerImage();
     }
@@ -735,7 +736,7 @@ void MainWindow::nextFrame()
 {
     if (folderSet.size() > 0)
     {
-        emit pathChanged(folderSet.current()->next()->path());
+        emit imageChanged(*folderSet.current()->next());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
@@ -744,7 +745,7 @@ void MainWindow::previousFrame()
 {
     if (folderSet.size() > 0)
     {
-        emit pathChanged(folderSet.current()->previous()->path());
+        emit imageChanged(*folderSet.current()->previous());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
@@ -758,7 +759,7 @@ void MainWindow::batchForward()
             folderSet.current()->next();
         }
         
-        emit pathChanged(folderSet.current()->current()->path());
+        emit imageChanged(*folderSet.current()->current());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
@@ -771,7 +772,7 @@ void MainWindow::batchBackward()
             folderSet.current()->previous();
         }
         
-        emit pathChanged(folderSet.current()->current()->path());
+        emit imageChanged(*folderSet.current()->current());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
@@ -779,7 +780,7 @@ void MainWindow::nextFolder()
 {
     if (folderSet.size() > 0)
     {
-        emit pathChanged(folderSet.next()->current()->path());
+        emit imageChanged(*folderSet.next()->current());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
@@ -787,7 +788,7 @@ void MainWindow::previousFolder()
 {
     if (folderSet.size() > 0)
     {
-        emit pathChanged(folderSet.previous()->current()->path());
+        emit imageChanged(*folderSet.previous()->current());
         emit selectionChanged(folderSet.current()->current()->selection());
     }
 }

@@ -30,7 +30,7 @@ public slots:
     void nextFolder();
     void previousFolder();
     void setHeader(QString path);
-    void setSelection(QRectF rect);
+    void setSelection(QRect rect);
     void applySelectionToAll();
     void applySelectionToFolder();
     void applySelectionToNext();
@@ -48,12 +48,13 @@ public slots:
     
 signals:
     void pathRemoved(QString path);
-    void pathChanged(QString path);
+    void imageChanged(QString path);
+    void imageChanged(Image image);
     void centerImage();
-    void selectionChanged(QRectF rect);
+    void selectionChanged(QRect rect);
     void outputTextAppended(QString str);
     void outputTextChanged(QString str);
-    void integrateCurrentFrame(QString path, QRectF rect);
+    void integrateCurrentFrame(QString path, QRect rect);
     void integrateImage(Image image);
     void integrateFolder(ImageFolder folder);
     void integrateSet(FolderSet set);
