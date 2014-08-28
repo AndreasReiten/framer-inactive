@@ -129,6 +129,7 @@ private:
     QAction * loadProjectAction;
     QAction * squareAreaSelectAction;
     QAction * centerImageAction;
+    QAction * showWeightCenterAction;
     
     ImagePreviewWindow * imagePreviewWindow;
     SharedContextWindow * sharedContextWindow ;

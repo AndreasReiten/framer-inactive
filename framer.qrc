@@ -21,5 +21,6 @@
         <file>art/center.png</file>
         <file>art/kill.png</file>
         <file>art/download.png</file>
+        <file>art/weight_center.png</file>
     </qresource>
 </RCC>

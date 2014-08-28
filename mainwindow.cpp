@@ -83,12 +83,6 @@ void MainWindow::integrateSelectedMode()
     }
 
     folderSet = tmp;
-    
-//    if (folderSet.size() > 0)
-//    {
-//        emit imageChanged(*folderSet.current()->current());
-//        emit selectionChanged(folderSet.current()->current()->selection());
-//    }
 }
 
 
@@ -144,48 +138,6 @@ void MainWindow::setIntegrationResults(double sum, int err)
     emit outputTextAppended(str);
 }
 
-//void MainWindow::integrateSingle()
-//{
-//    if (folderSet.size() <= 0) return;
-//    {
-//        QString str;
-                
-//        str += "# SINGLE FRAME INTEGRATION\n";
-//        str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
-//        str += "#\n";
-//        str += "#\n# Integrated intensity, origin x y, size w h\n";
-//        emit outputTextChanged(str);
-        
-//        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
-//    }
-//}
-
-
-
-//void MainWindow::integrateFolder()
-//{
-//    QString str;
-            
-//    str += "# FOLDER INTEGRATION\n";
-//    str += "# "+QDateTime::currentDateTime().toString("yyyy.MM.dd HH:mm:ss t")+"\n";
-//    str += "#\n";
-//    str += "#\n# Integrated intensity, origin x y, size w h\n";
-    
-//    emit outputTextChanged(str);
-
-//    folderSet.current()->rememberCurrent();
-    
-//    folderSet.current()->begin();
-    
-//    for (int i = 0; i < folderSet.current()->size(); i++)
-//    {
-//        emit integrateCurrentFrame(folderSet.current()->current()->path(), folderSet.current()->current()->selection());
-        
-//        folderSet.current()->next();
-//    }
-    
-//    folderSet.current()->restoreMemory();
-//}
 
 void MainWindow::initLayout()
 {
@@ -233,9 +185,14 @@ void MainWindow::initLayout()
     centerImageAction = new QAction(QIcon(":/art/center.png"), tr("Center image"), this);
     centerImageAction->setCheckable(false);
 
+    showWeightCenterAction = new QAction(QIcon(":/art/weight_center.png"), tr("Toggle weight center visual"), this);
+    showWeightCenterAction->setCheckable(true);
+    showWeightCenterAction->setChecked(false);
+
     imageToolBar->addAction(saveProjectAction);
     imageToolBar->addAction(loadProjectAction);
     imageToolBar->addAction(centerImageAction);
+    imageToolBar->addAction(showWeightCenterAction);
     imageToolBar->addAction(squareAreaSelectAction);
     imageToolBar->addWidget(pathLineEdit);
 
@@ -255,8 +212,6 @@ void MainWindow::initLayout()
     previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
     
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
-//    applySelectionToNextPushButton = new QPushButton("Apply selection to next frame");
-//    applySelectionToFolderPushButton = new QPushButton("Apply selection to folder");
 
     
 
@@ -276,8 +231,6 @@ void MainWindow::initLayout()
     connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
     connect(nextFolderPushButton, SIGNAL(clicked()), this, SLOT(nextFolder()));
     connect(previousFolderPushButton, SIGNAL(clicked()), this, SLOT(previousFolder()));
-//    connect(applySelectionToNextPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToNext()));
-//    connect(applySelectionToFolderPushButton, SIGNAL(clicked()), this, SLOT(applySelectionToFolder()));
     connect(removeCurrentPushButton, SIGNAL(clicked()), this, SLOT(removeImage()));
     connect(this, SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
     
@@ -431,8 +384,6 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
-//    connect(this, SIGNAL(imageChanged(QString)), imagePreviewWindow->getWorker(), SLOT(setFrame(QString)));
-//    connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrame(Image)));
     connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrameNew(Image)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
@@ -445,6 +396,7 @@ void MainWindow::initLayout()
     connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
     
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
+    connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(showWeightCenter(bool)));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(this, SIGNAL(selectionChanged(QRect)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRect)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRect)), this, SLOT(setSelection(QRect)));
@@ -458,8 +410,6 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
     connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
     connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
-//    connect(imagePreviewWindow,SIGNAL(selectionActiveChanged(bool)), squareAreaSelectAction, SLOT(setChecked(bool)));
-//    connect(imagePreviewWindow,SIGNAL(setFocus()),imageDisplayWidget,SLOT(setFocus()));
     
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
