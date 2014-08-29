@@ -41,6 +41,7 @@ public slots:
 //    void integrateSingle();
 //    void integrateFolder();
     void integrateSelectedMode();
+    void peakHuntSelectedMode();
     void applySelectionMode();
     void setSelectionMode(int value);
     void setIntegrationMode(int value);
@@ -58,6 +59,9 @@ signals:
     void integrateImage(Image image);
     void integrateFolder(ImageFolder folder);
     void integrateSet(FolderSet set);
+    void peakHuntImage(Image image);
+    void peakHuntFolder(ImageFolder folder);
+    void peakHuntSet(FolderSet set);
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -126,7 +130,7 @@ private:
 
     QComboBox * integrationModeComboBox;
     QPushButton * integratePushButton;
-
+    QPushButton * peakHuntPushButton;
     QLineEdit * pathLineEdit;
     QToolBar * imageToolBar;
     

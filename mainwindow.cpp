@@ -62,7 +62,10 @@ void MainWindow::writeSettings()
 
 void MainWindow::integrateSelectedMode()
 {
-    FolderSet tmp(folderSet);
+//    FolderSet tmp(folderSet);
+    
+    folderSet.current()->rememberCurrent();
+    folderSet.rememberCurrent();
 
     switch (integration_mode)
     {
@@ -81,8 +84,47 @@ void MainWindow::integrateSelectedMode()
         default: // Should not occur
             break;
     }
+    
+    folderSet.restoreMemory();
+    folderSet.current()->restoreMemory();
 
-    folderSet = tmp;
+//    folderSet = tmp;
+    
+    emit imageChanged(*folderSet.current()->current());
+    emit selectionChanged(folderSet.current()->current()->selection());
+}
+
+void MainWindow::peakHuntSelectedMode()
+{
+//    FolderSet tmp(folderSet);
+    folderSet.current()->rememberCurrent();
+    folderSet.rememberCurrent();
+    
+    switch (integration_mode)
+    {
+        case 0: // Single
+            emit peakHuntImage(*folderSet.current()->current()); 
+            break;
+
+        case 1: // Folder
+            emit peakHuntFolder(*folderSet.current());
+            break;
+
+        case 2: // All
+            emit peakHuntSet(folderSet);
+            break;
+
+        default: // Should not occur
+            break;
+    }
+    
+    folderSet.restoreMemory();
+    folderSet.current()->restoreMemory();
+    
+//    folderSet = tmp;
+    
+    emit imageChanged(*folderSet.current()->current());
+    emit selectionChanged(folderSet.current()->current()->selection());
 }
 
 
@@ -362,11 +404,14 @@ void MainWindow::initLayout()
     integrationModeComboBox->addItem("Folder");
     integrationModeComboBox->addItem("All");
 
-    integratePushButton = new QPushButton("Integrate");
+    integratePushButton = new QPushButton("Analyze");
+    
+    peakHuntPushButton = new QPushButton("Hunt peak");
 
     QGridLayout * calculationLayout = new QGridLayout;
     calculationLayout->addWidget(integrationModeComboBox,0,0,1,1);
     calculationLayout->addWidget(integratePushButton,1,0,1,1);
+//    calculationLayout->addWidget(peakHuntPushButton,2,0,1,1);
 
     calculationWidget = new QWidget;
     calculationWidget->setLayout(calculationLayout);
@@ -440,6 +485,7 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(selectionChanged(QRect)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRect)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRect)), this, SLOT(setSelection(QRect)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
+    connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
@@ -448,6 +494,9 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(integrateSingle(Image)));
     connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
     connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
+//    connect(this, SIGNAL(peakHuntImage(Image)), imagePreviewWindow->getWorker(), SLOT(peakHuntSingle(Image)));
+//    connect(this, SIGNAL(peakHuntFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(peakHuntFolder(ImageFolder)));
+//    connect(this, SIGNAL(peakHuntSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(peakHuntSet(FolderSet)));
     connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
     connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseLow(double)));
     connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseHigh(double)));
