@@ -117,7 +117,12 @@ private:
     QDoubleSpinBox * dataMaxDoubleSpinBox;
     QCheckBox * logCheckBox;
     QCheckBox * correctionCheckBox;
-
+    QDoubleSpinBox * noiseCorrectionMinDoubleSpinBox;
+    QDoubleSpinBox * noiseCorrectionMaxDoubleSpinBox;
+    QDoubleSpinBox * postCorrectionMinDoubleSpinBox;
+    QDoubleSpinBox * postCorrectionMaxDoubleSpinBox;
+    QWidget * correctionWidget;
+    QDockWidget * correctionDock;
 
     QComboBox * integrationModeComboBox;
     QPushButton * integratePushButton;

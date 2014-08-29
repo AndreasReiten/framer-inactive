@@ -274,7 +274,6 @@ void MainWindow::initLayout()
     dataMaxDoubleSpinBox->setPrefix("Data max: ");
     
     logCheckBox = new QCheckBox("Log");
-    correctionCheckBox = new QCheckBox("Corrections");
 
     QGridLayout * settingsLayout = new QGridLayout;
     settingsLayout->addWidget(imageModeComboBox,0,1,1,2);
@@ -283,18 +282,58 @@ void MainWindow::initLayout()
     settingsLayout->addWidget(dataMinDoubleSpinBox,2,1,1,2);
     settingsLayout->addWidget(dataMaxDoubleSpinBox,3,1,1,2);
     settingsLayout->addWidget(logCheckBox,4,1,1,1);
-    settingsLayout->addWidget(correctionCheckBox,4,2,1,1);
+    
 
 
     settingsWidget = new QWidget;
     settingsWidget->setLayout(settingsLayout);
 
 
-    settingsDock =  new QDockWidget("Settings");
+    settingsDock =  new QDockWidget("Display settings");
     settingsDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     settingsDock->setWidget(settingsWidget);
     settingsDock->setFixedHeight(settingsWidget->minimumSizeHint().height()*1.2);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, settingsDock);
+    
+    // Dock widget
+    noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
+    noiseCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
+    noiseCorrectionMinDoubleSpinBox->setPrefix("Noise: ");
+    
+    noiseCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
+    noiseCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
+//    noiseCorrectionMaxDoubleSpinBox->setPrefix("Noise ");
+    
+    postCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
+    postCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
+    postCorrectionMinDoubleSpinBox->setPrefix("PCT: ");
+    
+    postCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
+    postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
+//    postCorrectionMaxDoubleSpinBox->setPrefix("PCT ");
+    
+    correctionCheckBox = new QCheckBox("Lorentz correction");
+    
+
+    
+    QGridLayout * correctionLayout = new QGridLayout;
+    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,0,0,1,1);
+    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
+    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
+    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
+    correctionLayout->addWidget(correctionCheckBox,2,0,1,2);
+    
+    correctionWidget = new QWidget;
+    correctionWidget->setLayout(correctionLayout);
+    
+    correctionDock =  new QDockWidget("Corrections");
+    correctionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+    correctionDock->setWidget(correctionWidget);
+    correctionDock->setFixedHeight(correctionWidget->minimumSizeHint().height()*1.2);
+    imageWidget->addDockWidget(Qt::RightDockWidgetArea, correctionDock);
+    
+    
+    
     
     // Dock widget
     applySelectionPushButton  = new QPushButton("Apply selection");
@@ -410,6 +449,10 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
     connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
     connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
+    connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseLow(double)));
+    connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseHigh(double)));
+    connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionLow(double)));
+    connect(postCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionHigh(double)));
     
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
@@ -439,6 +482,12 @@ void MainWindow::setStartConditions()
     logCheckBox->setChecked(true);
     correctionCheckBox->setChecked(true);
     imageModeComboBox->setCurrentIndex(0);
+    
+    noiseCorrectionMinDoubleSpinBox->setValue(0);
+    noiseCorrectionMaxDoubleSpinBox->setValue(1e6);
+    
+    postCorrectionMinDoubleSpinBox->setValue(0);
+    postCorrectionMaxDoubleSpinBox->setValue(1e6);
 }
 
 void MainWindow::applySelectionToAll()
