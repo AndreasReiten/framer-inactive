@@ -74,11 +74,11 @@ void MainWindow::integrateSelectedMode()
             break;
 
         case 1: // Folder
-            emit integrateFolder(*folderSet.current());
+            emit analyzeFolder(*folderSet.current());
             break;
 
         case 2: // All
-            emit integrateSet(folderSet);
+            emit analyzeSet(folderSet);
             break;
 
         default: // Should not occur
@@ -166,7 +166,7 @@ void MainWindow::setIntegrationResults(double sum, int err)
     QRect selection = folderSet.current()->current()->selection();
     
     QString str;
-    QString region_str = QString::number(selection.normalized().left())+" "+QString::number(selection.normalized().top())+" "+QString::number(selection.normalized().width())+" "+QString::number(selection.normalized().height());
+    QString region_str = QString::number(selection.left())+" "+QString::number(selection.top())+" "+QString::number(selection.width())+" "+QString::number(selection.height());
     
     if (err == 0)
     {
@@ -491,9 +491,9 @@ void MainWindow::initLayout()
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
-    connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(integrateSingle(Image)));
-    connect(this, SIGNAL(integrateFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(integrateFolder(ImageFolder)));
-    connect(this, SIGNAL(integrateSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(integrateSet(FolderSet)));
+    connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(Image)));
+    connect(this, SIGNAL(analyzeFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageFolder)));
+    connect(this, SIGNAL(analyzeSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(FolderSet)));
 //    connect(this, SIGNAL(peakHuntImage(Image)), imagePreviewWindow->getWorker(), SLOT(peakHuntSingle(Image)));
 //    connect(this, SIGNAL(peakHuntFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(peakHuntFolder(ImageFolder)));
 //    connect(this, SIGNAL(peakHuntSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(peakHuntSet(FolderSet)));

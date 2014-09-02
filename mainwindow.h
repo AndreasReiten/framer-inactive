@@ -38,8 +38,8 @@ public slots:
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
     void removeImage();
-//    void integrateSingle();
-//    void integrateFolder();
+//    void analyzeSingle();
+//    void analyzeFolder();
     void integrateSelectedMode();
     void peakHuntSelectedMode();
     void applySelectionMode();
@@ -57,8 +57,8 @@ signals:
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRect rect);
     void integrateImage(Image image);
-    void integrateFolder(ImageFolder folder);
-    void integrateSet(FolderSet set);
+    void analyzeFolder(ImageFolder folder);
+    void analyzeSet(FolderSet set);
     void peakHuntImage(Image image);
     void peakHuntFolder(ImageFolder folder);
     void peakHuntSet(FolderSet set);
