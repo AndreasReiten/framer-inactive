@@ -30,7 +30,8 @@ public slots:
     void nextFolder();
     void previousFolder();
     void setHeader(QString path);
-    void setSelection(QRect rect);
+    void setSelection(Selection rect);
+    void setBackground(Selection rect);
     void applySelectionToAll();
     void applySelectionToFolder();
     void applySelectionToNext();
@@ -52,7 +53,7 @@ signals:
     void imageChanged(QString path);
     void imageChanged(Image image);
     void centerImage();
-    void selectionChanged(QRect rect);
+//    void selectionChanged(QRect rect);
     void outputTextAppended(QString str);
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRect rect);
@@ -136,7 +137,8 @@ private:
     
     QAction * saveProjectAction;
     QAction * loadProjectAction;
-    QAction * squareAreaSelectAction;
+    QAction * squareAreaSelectAlphaAction;
+    QAction * squareAreaSelectBetaAction;
     QAction * centerImageAction;
     QAction * showWeightCenterAction;
     

@@ -62,8 +62,6 @@ void MainWindow::writeSettings()
 
 void MainWindow::integrateSelectedMode()
 {
-//    FolderSet tmp(folderSet);
-    
     folderSet.current()->rememberCurrent();
     folderSet.rememberCurrent();
 
@@ -88,10 +86,7 @@ void MainWindow::integrateSelectedMode()
     folderSet.restoreMemory();
     folderSet.current()->restoreMemory();
 
-//    folderSet = tmp;
-    
     emit imageChanged(*folderSet.current()->current());
-    emit selectionChanged(folderSet.current()->current()->selection());
 }
 
 void MainWindow::peakHuntSelectedMode()
@@ -121,10 +116,7 @@ void MainWindow::peakHuntSelectedMode()
     folderSet.restoreMemory();
     folderSet.current()->restoreMemory();
     
-//    folderSet = tmp;
-    
     emit imageChanged(*folderSet.current()->current());
-    emit selectionChanged(folderSet.current()->current()->selection());
 }
 
 
@@ -220,9 +212,13 @@ void MainWindow::initLayout()
     saveProjectAction = new QAction(QIcon(":/art/save.png"), tr("Save project"), this);
     loadProjectAction = new QAction(QIcon(":/art/open.png"), tr("Load project"), this);
     
-    squareAreaSelectAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
-    squareAreaSelectAction->setCheckable(true);
-    squareAreaSelectAction->setChecked(false);
+    squareAreaSelectAlphaAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
+    squareAreaSelectAlphaAction->setCheckable(true);
+    squareAreaSelectAlphaAction->setChecked(false);
+
+    squareAreaSelectBetaAction = new QAction(QIcon(":/art/select2.png"), tr("Toggle background selection"), this);
+    squareAreaSelectBetaAction->setCheckable(true);
+    squareAreaSelectBetaAction->setChecked(false);
     
     centerImageAction = new QAction(QIcon(":/art/center.png"), tr("Center image"), this);
     centerImageAction->setCheckable(false);
@@ -235,7 +231,8 @@ void MainWindow::initLayout()
     imageToolBar->addAction(loadProjectAction);
     imageToolBar->addAction(centerImageAction);
     imageToolBar->addAction(showWeightCenterAction);
-    imageToolBar->addAction(squareAreaSelectAction);
+    imageToolBar->addAction(squareAreaSelectAlphaAction);
+    imageToolBar->addAction(squareAreaSelectBetaAction);
     imageToolBar->addWidget(pathLineEdit);
 
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
@@ -344,7 +341,6 @@ void MainWindow::initLayout()
     
     noiseCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
     noiseCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
-//    noiseCorrectionMaxDoubleSpinBox->setPrefix("Noise ");
     
     postCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
     postCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
@@ -352,7 +348,6 @@ void MainWindow::initLayout()
     
     postCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
     postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
-//    postCorrectionMaxDoubleSpinBox->setPrefix("PCT ");
     
     correctionCheckBox = new QCheckBox("Lorentz correction");
     
@@ -411,7 +406,6 @@ void MainWindow::initLayout()
     QGridLayout * calculationLayout = new QGridLayout;
     calculationLayout->addWidget(integrationModeComboBox,0,0,1,1);
     calculationLayout->addWidget(integratePushButton,1,0,1,1);
-//    calculationLayout->addWidget(peakHuntPushButton,2,0,1,1);
 
     calculationWidget = new QWidget;
     calculationWidget->setLayout(calculationLayout);
@@ -468,7 +462,7 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
-    connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrameNew(Image)));
+    connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrame(Image)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
@@ -482,8 +476,8 @@ void MainWindow::initLayout()
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(showWeightCenter(bool)));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
-    connect(this, SIGNAL(selectionChanged(QRect)), imagePreviewWindow->getWorker(), SLOT(setSelection(QRect)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(QRect)), this, SLOT(setSelection(QRect)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(Selection)), this, SLOT(setSelection(Selection)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(backgroundChanged(Selection)), this, SLOT(setBackground(Selection)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
@@ -494,10 +488,10 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(Image)));
     connect(this, SIGNAL(analyzeFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageFolder)));
     connect(this, SIGNAL(analyzeSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(FolderSet)));
-//    connect(this, SIGNAL(peakHuntImage(Image)), imagePreviewWindow->getWorker(), SLOT(peakHuntSingle(Image)));
-//    connect(this, SIGNAL(peakHuntFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(peakHuntFolder(ImageFolder)));
-//    connect(this, SIGNAL(peakHuntSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(peakHuntSet(FolderSet)));
-    connect(squareAreaSelectAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionActive(bool)));
+    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionAlphaActive(bool)));
+    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionBetaActive(bool)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionBetaChanged(bool)), squareAreaSelectBetaAction, SLOT(setChecked(bool)));
     connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseLow(double)));
     connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseHigh(double)));
     connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionLow(double)));
@@ -543,7 +537,8 @@ void MainWindow::applySelectionToAll()
 {
     if (folderSet.size() > 0)
     {
-        QRect selection = folderSet.current()->current()->selection();
+        Selection selection = folderSet.current()->current()->selection();
+        Selection background = folderSet.current()->current()->background();
         
         folderSet.rememberCurrent();
 
@@ -557,6 +552,7 @@ void MainWindow::applySelectionToAll()
             for (int i = 0; i < folderSet.current()->size(); i++)
             {
                 folderSet.current()->current()->setSelection(selection);
+                folderSet.current()->current()->setBackground(background);
                 folderSet.current()->next();
             }
             folderSet.current()->restoreMemory();
@@ -571,7 +567,8 @@ void MainWindow::applySelectionToFolder()
 {
     if (folderSet.size() > 0)
     {
-        QRect selection = folderSet.current()->current()->selection();
+        Selection selection = folderSet.current()->current()->selection();
+        Selection background = folderSet.current()->current()->background();
         
         folderSet.current()->rememberCurrent();
         
@@ -580,6 +577,7 @@ void MainWindow::applySelectionToFolder()
         for (int i = 0; i < folderSet.current()->size(); i++)
         {
             folderSet.current()->current()->setSelection(selection);
+            folderSet.current()->current()->setBackground(background);
             folderSet.current()->next();
         }
         
@@ -591,11 +589,14 @@ void MainWindow::applySelectionToNext()
 {
     if (folderSet.size() > 0)
     {
-        QRect selection = folderSet.current()->current()->selection();
-        folderSet.current()->next()->setSelection(selection);
+        Selection selection = folderSet.current()->current()->selection();
+        Selection background = folderSet.current()->current()->background();
+
+        folderSet.current()->next();
+        folderSet.current()->current()->setSelection(selection);
+        folderSet.current()->current()->setBackground(background);
         
         emit imageChanged(*folderSet.current()->current());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 
@@ -610,12 +611,22 @@ void MainWindow::setHeader(QString path)
     imageHeaderWidget->setPlainText(file.getHeaderText());
 }
 
-void MainWindow::setSelection(QRect rect)
+void MainWindow::setSelection(Selection rect)
 {
     if (folderSet.size() > 0)
     {
         folderSet.current()->current()->setSelection(rect);
         
+        hasPendingChanges = true;
+    }
+}
+
+void MainWindow::setBackground(Selection rect)
+{
+    if (folderSet.size() > 0)
+    {
+        folderSet.current()->current()->setBackground(rect);
+
         hasPendingChanges = true;
     }
 }
@@ -682,7 +693,6 @@ void MainWindow::loadProject()
             if (folderSet.size() > 0)
             {
                 emit imageChanged(*folderSet.current()->current());
-                emit selectionChanged(folderSet.current()->current()->selection());
                 emit centerImage();
             }
         }
@@ -702,7 +712,6 @@ void MainWindow::removeImage()
         if (folderSet.size() > 0)
         {
             emit imageChanged(*folderSet.current()->next());
-            emit selectionChanged(folderSet.current()->current()->selection());
         }
     }
 }
@@ -773,7 +782,6 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
     if (folderSet.size() > 0) 
     {
         emit imageChanged(*folderSet.current()->current());
-        emit selectionChanged(folderSet.current()->current()->selection());
         emit centerImage();
     }
     
@@ -786,7 +794,6 @@ void MainWindow::nextFrame()
     if (folderSet.size() > 0)
     {
         emit imageChanged(*folderSet.current()->next());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 
@@ -795,7 +802,6 @@ void MainWindow::previousFrame()
     if (folderSet.size() > 0)
     {
         emit imageChanged(*folderSet.current()->previous());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 
@@ -809,7 +815,6 @@ void MainWindow::batchForward()
         }
         
         emit imageChanged(*folderSet.current()->current());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 void MainWindow::batchBackward()
@@ -822,7 +827,6 @@ void MainWindow::batchBackward()
         }
         
         emit imageChanged(*folderSet.current()->current());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 void MainWindow::nextFolder()
@@ -830,7 +834,6 @@ void MainWindow::nextFolder()
     if (folderSet.size() > 0)
     {
         emit imageChanged(*folderSet.next()->current());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }
 void MainWindow::previousFolder()
@@ -838,6 +841,5 @@ void MainWindow::previousFolder()
     if (folderSet.size() > 0)
     {
         emit imageChanged(*folderSet.previous()->current());
-        emit selectionChanged(folderSet.current()->current()->selection());
     }
 }

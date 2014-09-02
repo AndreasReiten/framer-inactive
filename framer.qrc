@@ -22,5 +22,6 @@
         <file>art/kill.png</file>
         <file>art/download.png</file>
         <file>art/weight_center.png</file>
+        <file>art/select2.png</file>
     </qresource>
 </RCC>
