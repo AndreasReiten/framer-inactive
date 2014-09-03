@@ -153,24 +153,26 @@ void MainWindow::setIntegrationMode(int value)
     integration_mode = value;
 }
 
-void MainWindow::setIntegrationResults(double sum, int err)
-{
-    QRect selection = folderSet.current()->current()->selection();
+
+
+//void MainWindow::setIntegrationResults(double sum, int err)
+//{
+//    QRect selection = folderSet.current()->current()->selection();
     
-    QString str;
-    QString region_str = QString::number(selection.left())+" "+QString::number(selection.top())+" "+QString::number(selection.width())+" "+QString::number(selection.height());
+//    QString str;
+//    QString region_str = QString::number(selection.left())+" "+QString::number(selection.top())+" "+QString::number(selection.width())+" "+QString::number(selection.height());
     
-    if (err == 0)
-    {
-        str += QString::number(sum,'E')+" "+region_str;
-    }
-    else 
-    {
-        str += "# Bad integration_sum"+region_str;;
-    }
+//    if (err == 0)
+//    {
+//        str += QString::number(sum,'E')+" "+region_str;
+//    }
+//    else
+//    {
+//        str += "# Bad integration_sum"+region_str;;
+//    }
     
-    emit outputTextAppended(str);
-}
+//    emit outputTextAppended(str);
+//}
 
 
 void MainWindow::initLayout()
@@ -465,6 +467,7 @@ void MainWindow::initLayout()
     imageWidget->setCentralWidget(imageDisplayWidget);
 
     connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrame(Image)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(imageChanged(Image)), this, SLOT(setImage(Image)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
@@ -476,18 +479,21 @@ void MainWindow::initLayout()
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
     connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
     
+
+
+
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(showWeightCenter(bool)));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(Selection)), this, SLOT(setSelection(Selection)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(backgroundChanged(Selection)), this, SLOT(setBackground(Selection)));
+//    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(Selection)), this, SLOT(setSelection(Selection)));
+//    connect(imagePreviewWindow->getWorker(), SIGNAL(backgroundChanged(Selection)), this, SLOT(setBackground(Selection)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
+//    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
+//    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
     connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(Image)));
     connect(this, SIGNAL(analyzeFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageFolder)));
     connect(this, SIGNAL(analyzeSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(FolderSet)));
@@ -614,6 +620,22 @@ void MainWindow::setHeader(QString path)
 {
     DetectorFile file(path);
     imageHeaderWidget->setPlainText(file.getHeaderText());
+}
+
+void MainWindow::setImage(Image image)
+{
+    if (folderSet.size() > 0)
+    {
+        qDebug() << image;
+
+        *folderSet.current()->current() = image;
+
+        pathLineEdit->setText(folderSet.current()->current()->path());
+
+        setHeader(folderSet.current()->current()->path());
+
+        hasPendingChanges = true;
+    }
 }
 
 void MainWindow::setSelection(Selection rect)

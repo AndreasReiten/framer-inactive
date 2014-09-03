@@ -46,7 +46,8 @@ public slots:
     void applySelectionMode();
     void setSelectionMode(int value);
     void setIntegrationMode(int value);
-    void setIntegrationResults(double sum, int err);
+    void setImage(Image image);
+//    void setIntegrationResults(double sum, int err);
     
 signals:
     void pathRemoved(QString path);
