@@ -121,6 +121,7 @@ private:
     QDoubleSpinBox * dataMinDoubleSpinBox;
     QDoubleSpinBox * dataMaxDoubleSpinBox;
     QCheckBox * logCheckBox;
+    QCheckBox * autoBackgroundCorrectionCheckBox;
     QCheckBox * correctionCheckBox;
     QDoubleSpinBox * noiseCorrectionMinDoubleSpinBox;
     QDoubleSpinBox * noiseCorrectionMaxDoubleSpinBox;

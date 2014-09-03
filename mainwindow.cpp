@@ -350,6 +350,7 @@ void MainWindow::initLayout()
     postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
     
     correctionCheckBox = new QCheckBox("Lorentz correction");
+    autoBackgroundCorrectionCheckBox = new QCheckBox("Automatic background subtraction");
     
 
     
@@ -359,6 +360,7 @@ void MainWindow::initLayout()
     correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
     correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
     correctionLayout->addWidget(correctionCheckBox,2,0,1,2);
+    correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
     
     correctionWidget = new QWidget;
     correctionWidget->setLayout(correctionLayout);
@@ -469,6 +471,7 @@ void MainWindow::initLayout()
     connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMax(double)));
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setLog(bool)));
     connect(correctionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
+    connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setAutoBackgroundCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
     connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
@@ -496,6 +499,7 @@ void MainWindow::initLayout()
     connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseHigh(double)));
     connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionLow(double)));
     connect(postCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionHigh(double)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(noiseLowChanged(double)), noiseCorrectionMinDoubleSpinBox, SLOT(setValue(double)));
     
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
@@ -523,6 +527,7 @@ void MainWindow::setStartConditions()
     dataMinDoubleSpinBox->setValue(0);
     dataMaxDoubleSpinBox->setValue(1000);
     logCheckBox->setChecked(true);
+    autoBackgroundCorrectionCheckBox->setChecked(false);
     correctionCheckBox->setChecked(true);
     imageModeComboBox->setCurrentIndex(0);
     
@@ -651,7 +656,8 @@ void MainWindow::saveProject()
             out << (double) dataMinDoubleSpinBox->value();
             out << (double) dataMaxDoubleSpinBox->value();
             out << (bool) logCheckBox->isChecked();
-            out << (bool) correctionCheckBox->isChecked();            
+            out << (bool) correctionCheckBox->isChecked();  
+            out << (bool) autoBackgroundCorrectionCheckBox->isChecked();  
             
             file.close();
         }
@@ -674,11 +680,12 @@ void MainWindow::loadProject()
             double dataMin;
             double dataMax;
             bool log;
-            bool correction;
+            bool lorentzCorrection;
+            bool autoBackgroundCorrection;
             
             QDataStream in(&file);
             
-            in >> folderSet >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> correction;
+            in >> folderSet >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> lorentzCorrection >> autoBackgroundCorrection;
             
             
             tsfTextureComboBox->setCurrentText(tsfTexture);
@@ -686,7 +693,8 @@ void MainWindow::loadProject()
             dataMinDoubleSpinBox->setValue(dataMin);
             dataMaxDoubleSpinBox->setValue(dataMax);
             logCheckBox->setChecked(log);
-            correctionCheckBox->setChecked(correction);
+            correctionCheckBox->setChecked(lorentzCorrection);
+            autoBackgroundCorrectionCheckBox->setChecked(autoBackgroundCorrection);
             
             file.close();
 
