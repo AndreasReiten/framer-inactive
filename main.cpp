@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(appOutput);
 
     
-    qRegisterMetaType<Image>();
+    qRegisterMetaType<ImageInfo>();
     qRegisterMetaType<ImageFolder>();
     qRegisterMetaType<FolderSet>();
     qRegisterMetaType<Selection>();

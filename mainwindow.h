@@ -46,22 +46,22 @@ public slots:
     void applySelectionMode();
     void setSelectionMode(int value);
     void setIntegrationMode(int value);
-    void setImage(Image image);
+    void setImage(ImageInfo image);
 //    void setIntegrationResults(double sum, int err);
     
 signals:
     void pathRemoved(QString path);
     void imageChanged(QString path);
-    void imageChanged(Image image);
+    void imageChanged(ImageInfo image);
     void centerImage();
 //    void selectionChanged(QRect rect);
     void outputTextAppended(QString str);
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRect rect);
-    void integrateImage(Image image);
+    void integrateImage(ImageInfo image);
     void analyzeFolder(ImageFolder folder);
     void analyzeSet(FolderSet set);
-    void peakHuntImage(Image image);
+    void peakHuntImage(ImageInfo image);
     void peakHuntFolder(ImageFolder folder);
     void peakHuntSet(FolderSet set);
 

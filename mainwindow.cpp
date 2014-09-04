@@ -466,8 +466,8 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
-    connect(this, SIGNAL(imageChanged(Image)), imagePreviewWindow->getWorker(), SLOT(setFrame(Image)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(imageChanged(Image)), this, SLOT(setImage(Image)));
+    connect(this, SIGNAL(imageChanged(ImageInfo)), imagePreviewWindow->getWorker(), SLOT(setFrame(ImageInfo)));
+    connect(imagePreviewWindow->getWorker(), SIGNAL(imageChanged(ImageInfo)), this, SLOT(setImage(ImageInfo)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
@@ -494,7 +494,7 @@ void MainWindow::initLayout()
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
 //    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
 //    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
-    connect(this, SIGNAL(integrateImage(Image)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(Image)));
+    connect(this, SIGNAL(integrateImage(ImageInfo)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(ImageInfo)));
     connect(this, SIGNAL(analyzeFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageFolder)));
     connect(this, SIGNAL(analyzeSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(FolderSet)));
     connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionAlphaActive(bool)));
@@ -622,11 +622,11 @@ void MainWindow::setHeader(QString path)
     imageHeaderWidget->setPlainText(file.getHeaderText());
 }
 
-void MainWindow::setImage(Image image)
+void MainWindow::setImage(ImageInfo image)
 {
     if (folderSet.size() > 0)
     {
-        qDebug() << image;
+//        qDebug() << image;
 
         *folderSet.current()->current() = image;
 
@@ -796,7 +796,7 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
 
         while (j != image_strings.constEnd())
         {
-            Image image;
+            ImageInfo image;
 
             image.setPath(*j);
 
