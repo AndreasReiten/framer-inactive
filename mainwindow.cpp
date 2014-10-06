@@ -351,7 +351,7 @@ void MainWindow::initLayout()
     postCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
     postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
     
-    correctionCheckBox = new QCheckBox("Lorentz correction");
+    correctionLorentzCheckBox = new QCheckBox("Lorentz correction");
     autoBackgroundCorrectionCheckBox = new QCheckBox("Automatic background subtraction");
     
 
@@ -361,7 +361,7 @@ void MainWindow::initLayout()
     correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
     correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
     correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
-    correctionLayout->addWidget(correctionCheckBox,2,0,1,2);
+    correctionLayout->addWidget(correctionLorentzCheckBox,2,0,1,2);
     correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
     
     correctionWidget = new QWidget;
@@ -473,7 +473,7 @@ void MainWindow::initLayout()
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
     connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMax(double)));
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setLog(bool)));
-    connect(correctionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
+    connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
     connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setAutoBackgroundCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
@@ -534,7 +534,7 @@ void MainWindow::setStartConditions()
     dataMaxDoubleSpinBox->setValue(1000);
     logCheckBox->setChecked(true);
     autoBackgroundCorrectionCheckBox->setChecked(false);
-    correctionCheckBox->setChecked(true);
+    correctionLorentzCheckBox->setChecked(true);
     imageModeComboBox->setCurrentIndex(0);
     
     noiseCorrectionMinDoubleSpinBox->setValue(0);
@@ -678,7 +678,7 @@ void MainWindow::saveProject()
             out << (double) dataMinDoubleSpinBox->value();
             out << (double) dataMaxDoubleSpinBox->value();
             out << (bool) logCheckBox->isChecked();
-            out << (bool) correctionCheckBox->isChecked();  
+            out << (bool) correctionLorentzCheckBox->isChecked();  
             out << (bool) autoBackgroundCorrectionCheckBox->isChecked();  
             
             file.close();
@@ -715,7 +715,7 @@ void MainWindow::loadProject()
             dataMinDoubleSpinBox->setValue(dataMin);
             dataMaxDoubleSpinBox->setValue(dataMax);
             logCheckBox->setChecked(log);
-            correctionCheckBox->setChecked(lorentzCorrection);
+            correctionLorentzCheckBox->setChecked(lorentzCorrection);
             autoBackgroundCorrectionCheckBox->setChecked(autoBackgroundCorrection);
             
             file.close();
@@ -814,8 +814,6 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
         emit imageChanged(*folderSet.current()->current());
         emit centerImage();
     }
-    
-    hasPendingChanges = true;
 }
 
 
