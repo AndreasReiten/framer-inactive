@@ -39,22 +39,19 @@ public slots:
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
     void removeImage();
-//    void analyzeSingle();
-//    void analyzeFolder();
     void integrateSelectedMode();
     void peakHuntSelectedMode();
     void applySelectionMode();
     void setSelectionMode(int value);
     void setIntegrationMode(int value);
     void setImage(ImageInfo image);
-//    void setIntegrationResults(double sum, int err);
+    void setBatchSize(int value);
     
 signals:
     void pathRemoved(QString path);
     void imageChanged(QString path);
     void imageChanged(ImageInfo image);
     void centerImage();
-//    void selectionChanged(QRect rect);
     void outputTextAppended(QString str);
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRect rect);
@@ -110,10 +107,9 @@ private:
     size_t batch_size;
     QPushButton * nextFolderPushButton;
     QPushButton * previousFolderPushButton;
-//    QPushButton * applySelectionToFolderPushButton;
-//    QPushButton * applySelectionToNextPushButton;
     QPushButton * removeCurrentPushButton;
     QPushButton * applySelectionPushButton;
+    QSpinBox * batchSizeSpinBox;
     
     QComboBox * selectionModeComboBox;
     QComboBox * imageModeComboBox;

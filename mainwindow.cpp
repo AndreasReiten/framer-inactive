@@ -248,23 +248,25 @@ void MainWindow::initLayout()
     batchForwardPushButton->setIcon(QIcon(":/art/fast_forward.png"));
     batchBackwardPushButton = new QPushButton;
     batchBackwardPushButton->setIcon(QIcon(":/art/fast_back.png"));
-    batch_size = 10;
     nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next folder");
     previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
     
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
-
     
-
+    batchSizeSpinBox = new QSpinBox;
+    batchSizeSpinBox->setPrefix("Skip size: ");
+    
+    connect(batchSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setBatchSize(int)));
     
     QGridLayout * navigationLayout = new QGridLayout;
-    navigationLayout->addWidget(previousFolderPushButton,0,0,1,1);
-    navigationLayout->addWidget(batchBackwardPushButton,0,1,1,1);
-    navigationLayout->addWidget(previousFramePushButton,0,2,1,1);
-    navigationLayout->addWidget(nextFramePushButton,0,3,1,1);
-    navigationLayout->addWidget(batchForwardPushButton,0,4,1,1);
-    navigationLayout->addWidget(nextFolderPushButton,0,5,1,1);
-    navigationLayout->addWidget(removeCurrentPushButton, 1, 4, 1 , 2);
+    navigationLayout->addWidget(previousFolderPushButton,2,1,1,1);
+    navigationLayout->addWidget(batchBackwardPushButton,1,1,1,1);
+    navigationLayout->addWidget(previousFramePushButton,0,1,1,2);
+    navigationLayout->addWidget(nextFramePushButton,0,3,1,2);
+    navigationLayout->addWidget(batchForwardPushButton,1,4,1,1);
+    navigationLayout->addWidget(nextFolderPushButton,2,4,1,1);
+    navigationLayout->addWidget(batchSizeSpinBox,1,2,1,2);
+    navigationLayout->addWidget(removeCurrentPushButton, 2, 2, 1 , 2);
     
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
@@ -528,6 +530,7 @@ void MainWindow::initLayout()
 
 void MainWindow::setStartConditions()
 {
+    batchSizeSpinBox->setValue(10);
     tsfTextureComboBox->setCurrentIndex(1);
     tsfAlphaComboBox->setCurrentIndex(2);
     dataMinDoubleSpinBox->setValue(0);
@@ -622,12 +625,15 @@ void MainWindow::setHeader(QString path)
     imageHeaderWidget->setPlainText(file.getHeaderText());
 }
 
+void MainWindow::setBatchSize(int value)
+{
+    batch_size = value;
+}
+
 void MainWindow::setImage(ImageInfo image)
 {
     if (folderSet.size() > 0)
     {
-//        qDebug() << image;
-
         *folderSet.current()->current() = image;
 
         pathLineEdit->setText(folderSet.current()->current()->path());
