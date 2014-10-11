@@ -5,12 +5,12 @@
 #-------------------------------------------------
 
 win32 {
-    INCLUDEPATH = /lib/qxlib/qxopencl/khronos/CL/
+    INCLUDEPATH = lib/qxlib/qxopencl/khronos/
     QMAKE_CXXFLAGS += -c++11 # C++11
 }
 
 unix {
-    INCLUDEPATH = /lib/qxlib/qxopencl/khronos/CL/
+    INCLUDEPATH = lib/qxlib/qxopencl/khronos/
     QMAKE_CXXFLAGS += -std=c++0x # C++11
 }
 
