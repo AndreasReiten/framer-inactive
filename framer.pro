@@ -4,14 +4,21 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-RESOURCES = framer.qrc
-LIBS += -lOpenCL
+win32 {
+    INCLUDEPATH = inc_win
+    QMAKE_CXXFLAGS += -c++11 # C++11
+}
+
+unix {
+    QMAKE_CXXFLAGS += -std=c++0x # C++11
+}
+
+
+QT += widgets
+
 TARGET = framer
-TEMPLATE = app
-QMAKE_CXXFLAGS += -std=c++0x # C++11 
 QMAKE_MAKEFILE = Makefile
+RESOURCES  = framer.qrc
 
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
@@ -27,7 +34,6 @@ SOURCES += main.cpp\
     lib/qxlib/qximage/qximagelib.cpp \
     lib/qxlib/qxmath/qxmathlib.cpp \
     lib/qxlib/qxopencl/utils/contextcl.cpp \
-    lib/qxlib/qxopencl/utils/devicecl.cpp \
     lib/qxlib/qxopencl/qxopencllib.cpp \
     lib/qxlib/qxopengl/utils/openglwindow.cpp \
     lib/qxlib/qxopengl/utils/sharedcontext.cpp \
@@ -53,7 +59,6 @@ HEADERS  += mainwindow.h \
     lib/qxlib/qxmath/utils/ubmatrix.h \
     lib/qxlib/qxmath/qxmathlib.h \
     lib/qxlib/qxopencl/utils/contextcl.h \
-    lib/qxlib/qxopencl/utils/devicecl.h \
     lib/qxlib/qxopencl/qxopencllib.h \
     lib/qxlib/qxopengl/utils/openglwindow.h \
     lib/qxlib/qxopengl/utils/sharedcontext.h \
