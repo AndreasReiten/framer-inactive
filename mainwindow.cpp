@@ -533,16 +533,20 @@ void MainWindow::setStartConditions()
     batchSizeSpinBox->setValue(10);
     tsfTextureComboBox->setCurrentIndex(1);
     tsfAlphaComboBox->setCurrentIndex(2);
+    dataMinDoubleSpinBox->setValue(10);
     dataMinDoubleSpinBox->setValue(0);
     dataMaxDoubleSpinBox->setValue(1000);
     logCheckBox->setChecked(true);
     autoBackgroundCorrectionCheckBox->setChecked(false);
     correctionLorentzCheckBox->setChecked(true);
+    imageModeComboBox->setCurrentIndex(1);
     imageModeComboBox->setCurrentIndex(0);
     
+    noiseCorrectionMinDoubleSpinBox->setValue(1);
     noiseCorrectionMinDoubleSpinBox->setValue(0);
     noiseCorrectionMaxDoubleSpinBox->setValue(1e6);
     
+    postCorrectionMinDoubleSpinBox->setValue(1);
     postCorrectionMinDoubleSpinBox->setValue(0);
     postCorrectionMaxDoubleSpinBox->setValue(1e6);
 }
