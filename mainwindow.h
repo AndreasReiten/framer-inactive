@@ -56,11 +56,11 @@ signals:
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRect rect);
     void integrateImage(ImageInfo image);
-    void analyzeFolder(ImageFolder folder);
-    void analyzeSet(FolderSet set);
+    void analyzeFolder(ImageSeries folder);
+    void analyzeSet(SeriesSet set);
     void peakHuntImage(ImageInfo image);
-    void peakHuntFolder(ImageFolder folder);
-    void peakHuntSet(FolderSet set);
+    void peakHuntFolder(ImageSeries folder);
+    void peakHuntSet(SeriesSet set);
 
 public:
     MainWindow(QWidget *parent = 0);
@@ -144,7 +144,7 @@ private:
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
 
-    FolderSet folderSet;
+    SeriesSet folderSet;
 
     bool hasPendingChanges;
     int integration_mode;

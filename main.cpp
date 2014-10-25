@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
 
     
     qRegisterMetaType<ImageInfo>();
-    qRegisterMetaType<ImageFolder>();
-    qRegisterMetaType<FolderSet>();
+    qRegisterMetaType<ImageSeries>();
+    qRegisterMetaType<SeriesSet>();
     qRegisterMetaType<Selection>();
     
     QApplication a(argc, argv);

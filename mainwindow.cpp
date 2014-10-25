@@ -91,7 +91,7 @@ void MainWindow::integrateSelectedMode()
 
 void MainWindow::peakHuntSelectedMode()
 {
-//    FolderSet tmp(folderSet);
+//    SeriesSet tmp(folderSet);
     folderSet.current()->rememberCurrent();
     folderSet.rememberCurrent();
     
@@ -497,8 +497,8 @@ void MainWindow::initLayout()
 //    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
 //    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
     connect(this, SIGNAL(integrateImage(ImageInfo)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(ImageInfo)));
-    connect(this, SIGNAL(analyzeFolder(ImageFolder)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageFolder)));
-    connect(this, SIGNAL(analyzeSet(FolderSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(FolderSet)));
+    connect(this, SIGNAL(analyzeFolder(ImageSeries)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageSeries)));
+    connect(this, SIGNAL(analyzeSet(SeriesSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(SeriesSet)));
     connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionAlphaActive(bool)));
     connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionBetaActive(bool)));
     connect(imagePreviewWindow->getWorker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
@@ -798,7 +798,7 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
     QMap<QString, QStringList>::const_iterator i = folder_map.constBegin();
     while (i != folder_map.constEnd())
     {
-        ImageFolder folder;
+        ImageSeries folder;
         folder.setPath(i.key());
 
         QStringList image_strings(i.value());
