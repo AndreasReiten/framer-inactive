@@ -155,26 +155,6 @@ void MainWindow::setIntegrationMode(int value)
 
 
 
-//void MainWindow::setIntegrationResults(double sum, int err)
-//{
-//    QRect selection = folderSet.current()->current()->selection();
-    
-//    QString str;
-//    QString region_str = QString::number(selection.left())+" "+QString::number(selection.top())+" "+QString::number(selection.width())+" "+QString::number(selection.height());
-    
-//    if (err == 0)
-//    {
-//        str += QString::number(sum,'E')+" "+region_str;
-//    }
-//    else
-//    {
-//        str += "# Bad integration_sum"+region_str;;
-//    }
-    
-//    emit outputTextAppended(str);
-//}
-
-
 void MainWindow::initLayout()
 {
     // File widget
@@ -248,8 +228,8 @@ void MainWindow::initLayout()
     batchForwardPushButton->setIcon(QIcon(":/art/fast_forward.png"));
     batchBackwardPushButton = new QPushButton;
     batchBackwardPushButton->setIcon(QIcon(":/art/fast_back.png"));
-    nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next folder");
-    previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous folder");
+    nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next series");
+    previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous series");
     
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
     
@@ -487,15 +467,11 @@ void MainWindow::initLayout()
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(showWeightCenter(bool)));
     connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
-//    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionChanged(Selection)), this, SLOT(setSelection(Selection)));
-//    connect(imagePreviewWindow->getWorker(), SIGNAL(backgroundChanged(Selection)), this, SLOT(setBackground(Selection)));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
-//    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
-//    connect(imagePreviewWindow->getWorker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
     connect(this, SIGNAL(integrateImage(ImageInfo)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(ImageInfo)));
     connect(this, SIGNAL(analyzeFolder(ImageSeries)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageSeries)));
     connect(this, SIGNAL(analyzeSet(SeriesSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(SeriesSet)));
