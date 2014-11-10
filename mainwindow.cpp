@@ -214,7 +214,7 @@ void MainWindow::initLayout()
     imageToolBar->addAction(centerImageAction);
     imageToolBar->addAction(showWeightCenterAction);
     imageToolBar->addAction(squareAreaSelectAlphaAction);
-    imageToolBar->addAction(squareAreaSelectBetaAction);
+//    imageToolBar->addAction(squareAreaSelectBetaAction);
     imageToolBar->addWidget(pathLineEdit);
 
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
@@ -261,7 +261,7 @@ void MainWindow::initLayout()
     navigationWidget->setLayout(navigationLayout);
 
     navigationDock =  new QDockWidget("Navigate");
-    navigationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    navigationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     navigationDock->setWidget(navigationWidget);
     navigationDock->setFixedHeight(navigationWidget->minimumSizeHint().height()*1.2);
     imageWidget->addDockWidget(Qt::BottomDockWidgetArea, navigationDock);
@@ -313,10 +313,10 @@ void MainWindow::initLayout()
 
 
     settingsDock =  new QDockWidget("Display settings");
-    settingsDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    settingsDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     settingsDock->setWidget(settingsWidget);
     settingsDock->setFixedHeight(settingsWidget->minimumSizeHint().height()*1.2);
-    imageWidget->addDockWidget(Qt::RightDockWidgetArea, settingsDock);
+    imageWidget->addDockWidget(Qt::LeftDockWidgetArea, settingsDock);
     
     // Dock widget
     noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
@@ -339,18 +339,18 @@ void MainWindow::initLayout()
 
     
     QGridLayout * correctionLayout = new QGridLayout;
-    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,0,0,1,1);
-    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
-    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
-    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
+    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,0,0,1,2);
+//    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
+//    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
+//    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
     correctionLayout->addWidget(correctionLorentzCheckBox,2,0,1,2);
-    correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
+//    correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
     
     correctionWidget = new QWidget;
     correctionWidget->setLayout(correctionLayout);
     
     correctionDock =  new QDockWidget("Corrections");
-    correctionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    correctionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     correctionDock->setWidget(correctionWidget);
     correctionDock->setFixedHeight(correctionWidget->minimumSizeHint().height()*1.2);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, correctionDock);
@@ -374,7 +374,7 @@ void MainWindow::initLayout()
     selectionWidget->setLayout(selectionLayout);
 
     selectionDock =  new QDockWidget("Area selection");
-    selectionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    selectionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     selectionDock->setFixedHeight(selectionWidget->minimumSizeHint().height()*1.2);
     selectionDock->setWidget(selectionWidget);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, selectionDock);
@@ -397,7 +397,7 @@ void MainWindow::initLayout()
     calculationWidget->setLayout(calculationLayout);
 
     calculationDock =  new QDockWidget("Calculations");
-    calculationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    calculationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     calculationDock->setFixedHeight(calculationWidget->minimumSizeHint().height()*1.2);
     calculationDock->setWidget(calculationWidget);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
@@ -411,7 +411,7 @@ void MainWindow::initLayout()
 
     headerDock = new QDockWidget("Header");
     headerDock->setWidget(imageHeaderWidget);
-    headerDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
+//    headerDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     this->addDockWidget(Qt::RightDockWidgetArea, headerDock);
     
     // Set the OpenCL context
