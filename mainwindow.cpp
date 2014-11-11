@@ -46,18 +46,20 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readSettings()
 {
-    QSettings settings("Norwegian University of Science and Technology", "framer");
-    QPoint pos = settings.value("pos", QPoint(0, 0)).toPoint();
+    QSettings settings("Norwegian University of Science and Technology", "Framer");
+    QPoint pos = settings.value("position", QPoint(0, 0)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
+    working_dir = settings.value("working_dir").toString();
     resize(size);
     move(pos);
 }
 
 void MainWindow::writeSettings()
 {
-    QSettings settings("Norwegian University of Science and Technology", "framer");
-    settings.setValue("pos", pos());
+    QSettings settings("Norwegian University of Science and Technology", "Framer");
+    settings.setValue("position", pos());
     settings.setValue("size", size());
+    settings.setValue("working_dir", working_dir);
 }
 
 void MainWindow::integrateSelectedMode()
@@ -89,35 +91,35 @@ void MainWindow::integrateSelectedMode()
 //    emit imageChanged(*folderSet.current()->current());
 }
 
-void MainWindow::peakHuntSelectedMode()
-{
+//void MainWindow::peakHuntSelectedMode()
+//{
 //    SeriesSet tmp(folderSet);
 //    folderSet.current()->rememberCurrent();
 //    folderSet.rememberCurrent();
     
-    switch (integration_mode)
-    {
-        case 0: // Single
-            emit peakHuntImage(); 
-            break;
+//    switch (integration_mode)
+//    {
+//        case 0: // Single
+//            emit peakHuntImage();
+//            break;
 
-        case 1: // Folder
-            emit peakHuntFolder();
-            break;
+//        case 1: // Folder
+//            emit peakHuntFolder();
+//            break;
 
-        case 2: // All
-            emit peakHuntSet();
-            break;
+//        case 2: // All
+//            emit peakHuntSet();
+//            break;
 
-        default: // Should not occur
-            break;
-    }
+//        default: // Should not occur
+//            break;
+//    }
     
 //    folderSet.restoreMemory();
 //    folderSet.current()->restoreMemory();
     
 //    emit imageChanged(*folderSet.current()->current());
-}
+//}
 
 
 void MainWindow::applySelectionMode()
@@ -446,18 +448,19 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
-    connect(this, SIGNAL(imageChanged(ImageInfo)), imagePreviewWindow->worker(), SLOT(setFrame(ImageInfo)));
+//    connect(this, SIGNAL(imageChanged(ImageInfo)), imagePreviewWindow->worker(), SLOT(setFrame(ImageInfo)));
 //    connect(imagePreviewWindow->worker(), SIGNAL(imageChanged(ImageInfo)), this, SLOT(setImage(ImageInfo)));
     connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setTsfTexture(int)));
     connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setTsfAlpha(int)));
     connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setDataMin(double)));
     connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setDataMax(double)));
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setLog(bool)));
-    connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrection(bool)));
+    connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrectionLorentz(bool)));
 //    connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setAutoBackgroundCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
     connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
+
     
     connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
@@ -473,13 +476,14 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
     connect(imageSpinBox, SIGNAL(valueChanged(int)), imagePreviewWindow->worker(), SLOT(setFrameByIndex(int)));
     connect(imagePreviewWindow->worker(), SIGNAL(imageRangeChanged(int,int)), this, SLOT(setImageRange(int, int)));
+    connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
 
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
-    connect(this, SIGNAL(centerImage()), imagePreviewWindow->worker(), SLOT(centerImage()));
+//    connect(this, SIGNAL(centerImage()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
-    connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
+//    connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
@@ -500,8 +504,8 @@ void MainWindow::initLayout()
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
     outputPlainTextEdit->setReadOnly(true);
     
-    connect(this, SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
-    connect(this, SIGNAL(outputTextAppended(QString)),outputPlainTextEdit,SLOT(appendPlainText(QString)));
+//    connect(this, SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
+//    connect(this, SIGNAL(outputTextAppended(QString)),outputPlainTextEdit,SLOT(appendPlainText(QString)));
     connect(imagePreviewWindow->worker(), SIGNAL(resultFinished(QString)), outputPlainTextEdit, SLOT(setPlainText(QString)));
 
     // Tab widget    

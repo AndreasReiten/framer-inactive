@@ -37,7 +37,7 @@ public slots:
 //    void removeImage();
     
     void integrateSelectedMode();
-    void peakHuntSelectedMode();
+//    void peakHuntSelectedMode();
     void applySelectionMode();
     void setSelectionMode(int value);
     void setIntegrationMode(int value);
@@ -46,19 +46,19 @@ public slots:
     void setImageRange(int low, int high);
     
 signals:
-    void pathRemoved(QString path);
-    void imageChanged(QString path);
-    void imageChanged(ImageInfo image);
-    void centerImage();
-    void outputTextAppended(QString str);
-    void outputTextChanged(QString str);
-    void integrateCurrentFrame(QString path, QRect rect);
+//    void pathRemoved(QString path);
+//    void imageChanged(QString path);
+//    void imageChanged(ImageInfo image);
+//    void centerImage();
+//    void outputTextAppended(QString str);
+//    void outputTextChanged(QString str);
+//    void integrateCurrentFrame(QString path, QRect rect);
     void integrateImage();
     void analyzeFolder();
     void analyzeSet();
-    void peakHuntImage();
-    void peakHuntFolder();
-    void peakHuntSet();
+//    void peakHuntImage();
+//    void peakHuntFolder();
+//    void peakHuntSet();
     void applySelectionToSeriesSet();
     void applySelectionToSeries();
     void setChanged(SeriesSet set);
