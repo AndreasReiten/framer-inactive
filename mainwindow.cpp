@@ -62,61 +62,61 @@ void MainWindow::writeSettings()
 
 void MainWindow::integrateSelectedMode()
 {
-    folderSet.current()->rememberCurrent();
-    folderSet.rememberCurrent();
+//    folderSet.current()->rememberCurrent();
+//    folderSet.rememberCurrent();
 
     switch (integration_mode)
     {
         case 0: // Single
-            emit integrateImage(*folderSet.current()->current()); 
+            emit integrateImage(); 
             break;
 
         case 1: // Folder
-            emit analyzeFolder(*folderSet.current());
+            emit analyzeFolder();
             break;
 
         case 2: // All
-            emit analyzeSet(folderSet);
+            emit analyzeSet();
             break;
 
         default: // Should not occur
             break;
     }
     
-    folderSet.restoreMemory();
-    folderSet.current()->restoreMemory();
+//    folderSet.restoreMemory();
+//    folderSet.current()->restoreMemory();
 
-    emit imageChanged(*folderSet.current()->current());
+//    emit imageChanged(*folderSet.current()->current());
 }
 
 void MainWindow::peakHuntSelectedMode()
 {
 //    SeriesSet tmp(folderSet);
-    folderSet.current()->rememberCurrent();
-    folderSet.rememberCurrent();
+//    folderSet.current()->rememberCurrent();
+//    folderSet.rememberCurrent();
     
     switch (integration_mode)
     {
         case 0: // Single
-            emit peakHuntImage(*folderSet.current()->current()); 
+            emit peakHuntImage(); 
             break;
 
         case 1: // Folder
-            emit peakHuntFolder(*folderSet.current());
+            emit peakHuntFolder();
             break;
 
         case 2: // All
-            emit peakHuntSet(folderSet);
+            emit peakHuntSet();
             break;
 
         default: // Should not occur
             break;
     }
     
-    folderSet.restoreMemory();
-    folderSet.current()->restoreMemory();
+//    folderSet.restoreMemory();
+//    folderSet.current()->restoreMemory();
     
-    emit imageChanged(*folderSet.current()->current());
+//    emit imageChanged(*folderSet.current()->current());
 }
 
 
@@ -127,15 +127,15 @@ void MainWindow::applySelectionMode()
     switch (selection_mode)
     {
         case 0: // Single
-            applySelectionToNext();
+//            emit applySelectionToNext();
             break;
 
         case 1: // Folder
-            applySelectionToFolder();
+            emit applySelectionToSeries();
             break;
 
         case 2: // All
-            applySelectionToAll();
+            emit applySelectionToSeriesSet();
             break;
 
         default: // Should not occur
@@ -233,29 +233,27 @@ void MainWindow::initLayout()
     
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
     
+    imageSpinBox = new QSpinBox;
+    imageSpinBox->setPrefix("Frame: ");
+    
     batchSizeSpinBox = new QSpinBox;
     batchSizeSpinBox->setPrefix("Skip size: ");
     
     connect(batchSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setBatchSize(int)));
     
     QGridLayout * navigationLayout = new QGridLayout;
-    navigationLayout->addWidget(previousFolderPushButton,2,1,1,1);
-    navigationLayout->addWidget(batchBackwardPushButton,1,1,1,1);
-    navigationLayout->addWidget(previousFramePushButton,0,1,1,2);
-    navigationLayout->addWidget(nextFramePushButton,0,3,1,2);
-    navigationLayout->addWidget(batchForwardPushButton,1,4,1,1);
-    navigationLayout->addWidget(nextFolderPushButton,2,4,1,1);
-    navigationLayout->addWidget(batchSizeSpinBox,1,2,1,2);
-    navigationLayout->addWidget(removeCurrentPushButton, 2, 2, 1 , 2);
     
-    connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
-    connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
-    connect(batchForwardPushButton, SIGNAL(clicked()), this, SLOT(batchForward()));
-    connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
-    connect(nextFolderPushButton, SIGNAL(clicked()), this, SLOT(nextFolder()));
-    connect(previousFolderPushButton, SIGNAL(clicked()), this, SLOT(previousFolder()));
-    connect(removeCurrentPushButton, SIGNAL(clicked()), this, SLOT(removeImage()));
-    connect(this, SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
+    navigationLayout->addWidget(batchBackwardPushButton,0,0,1,1);
+    navigationLayout->addWidget(previousFramePushButton,0,1,1,1);
+    navigationLayout->addWidget(imageSpinBox,0,2,1,2);
+    navigationLayout->addWidget(nextFramePushButton,0,4,1,1);
+    navigationLayout->addWidget(batchForwardPushButton,0,5,1,1);
+    
+    navigationLayout->addWidget(previousFolderPushButton,1,0,1,2);
+    navigationLayout->addWidget(batchSizeSpinBox,1,2,1,2);
+    navigationLayout->addWidget(nextFolderPushButton,1,4,1,2);
+    
+    navigationLayout->addWidget(removeCurrentPushButton, 2, 2, 1 , 2);
     
     navigationWidget = new QWidget;
     navigationWidget->setLayout(navigationLayout);
@@ -334,7 +332,7 @@ void MainWindow::initLayout()
     postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
     
     correctionLorentzCheckBox = new QCheckBox("Lorentz correction");
-    autoBackgroundCorrectionCheckBox = new QCheckBox("Automatic background subtraction");
+//    autoBackgroundCorrectionCheckBox = new QCheckBox("Automatic background subtraction");
     
 
     
@@ -448,42 +446,55 @@ void MainWindow::initLayout()
     imageDisplayWidget->setFocusPolicy(Qt::StrongFocus);
     imageWidget->setCentralWidget(imageDisplayWidget);
 
-    connect(this, SIGNAL(imageChanged(ImageInfo)), imagePreviewWindow->getWorker(), SLOT(setFrame(ImageInfo)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(imageChanged(ImageInfo)), this, SLOT(setImage(ImageInfo)));
-    connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfTexture(int)));
-    connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setTsfAlpha(int)));
-    connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMin(double)));
-    connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setDataMax(double)));
-    connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setLog(bool)));
-    connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setCorrection(bool)));
-    connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setAutoBackgroundCorrection(bool)));
-    connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->getWorker(), SLOT(setMode(int)));
+    connect(this, SIGNAL(imageChanged(ImageInfo)), imagePreviewWindow->worker(), SLOT(setFrame(ImageInfo)));
+//    connect(imagePreviewWindow->worker(), SIGNAL(imageChanged(ImageInfo)), this, SLOT(setImage(ImageInfo)));
+    connect(tsfTextureComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setTsfTexture(int)));
+    connect(tsfAlphaComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setTsfAlpha(int)));
+    connect(dataMinDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setDataMin(double)));
+    connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setDataMax(double)));
+    connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setLog(bool)));
+    connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrection(bool)));
+//    connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setAutoBackgroundCorrection(bool)));
+    connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
     connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(loadProject()));
     
+    connect(nextFramePushButton, SIGNAL(clicked()), this, SLOT(nextFrame()));
+    connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
+    connect(batchForwardPushButton, SIGNAL(clicked()), this, SLOT(batchForward()));
+    connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
+    connect(nextFolderPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(nextSeries()));
+    connect(previousFolderPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(prevSeries()));
+    connect(removeCurrentPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(removeCurrentImage()));
+    connect(imagePreviewWindow->worker(), SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
+    connect(this, SIGNAL(applySelectionToSeries()), imagePreviewWindow->worker(), SLOT(applySelectionToSeries()));
+    connect(this, SIGNAL(applySelectionToSeriesSet()), imagePreviewWindow->worker(), SLOT(applySelectionToSeriesSet()));
+    connect(imagePreviewWindow->worker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
+    connect(imagePreviewWindow->worker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
+    connect(imageSpinBox, SIGNAL(valueChanged(int)), imagePreviewWindow->worker(), SLOT(setFrameByIndex(int)));
+    connect(imagePreviewWindow->worker(), SIGNAL(imageRangeChanged(int,int)), this, SLOT(setImageRange(int, int)));
+    connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
 
-
-
-    connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
-    connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(showWeightCenter(bool)));
-    connect(this, SIGNAL(centerImage()), imagePreviewWindow->getWorker(), SLOT(centerImage()));
+    connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
+    connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
+    connect(this, SIGNAL(centerImage()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
     connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
     connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
     connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
-    connect(this, SIGNAL(integrateImage(ImageInfo)), imagePreviewWindow->getWorker(), SLOT(analyzeSingle(ImageInfo)));
-    connect(this, SIGNAL(analyzeFolder(ImageSeries)), imagePreviewWindow->getWorker(), SLOT(analyzeFolder(ImageSeries)));
-    connect(this, SIGNAL(analyzeSet(SeriesSet)), imagePreviewWindow->getWorker(), SLOT(analyzeSet(SeriesSet)));
-    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionAlphaActive(bool)));
-    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->getWorker(), SLOT(setSelectionBetaActive(bool)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(selectionBetaChanged(bool)), squareAreaSelectBetaAction, SLOT(setChecked(bool)));
-    connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseLow(double)));
-    connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdNoiseHigh(double)));
-    connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionLow(double)));
-    connect(postCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->getWorker(), SLOT(setThresholdPostCorrectionHigh(double)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(noiseLowChanged(double)), noiseCorrectionMinDoubleSpinBox, SLOT(setValue(double)));
+    connect(this, SIGNAL(integrateImage()), imagePreviewWindow->worker(), SLOT(analyzeSingle()));
+    connect(this, SIGNAL(analyzeFolder()), imagePreviewWindow->worker(), SLOT(analyzeFolder()));
+    connect(this, SIGNAL(analyzeSet()), imagePreviewWindow->worker(), SLOT(analyzeSet()));
+    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionAlphaActive(bool)));
+    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionBetaActive(bool)));
+    connect(imagePreviewWindow->worker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
+    connect(imagePreviewWindow->worker(), SIGNAL(selectionBetaChanged(bool)), squareAreaSelectBetaAction, SLOT(setChecked(bool)));
+    connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseLow(double)));
+    connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseHigh(double)));
+    connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdPostCorrectionLow(double)));
+    connect(postCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdPostCorrectionHigh(double)));
+    connect(imagePreviewWindow->worker(), SIGNAL(noiseLowChanged(double)), noiseCorrectionMinDoubleSpinBox, SLOT(setValue(double)));
     
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
@@ -491,7 +502,7 @@ void MainWindow::initLayout()
     
     connect(this, SIGNAL(outputTextChanged(QString)),outputPlainTextEdit,SLOT(setPlainText(QString)));
     connect(this, SIGNAL(outputTextAppended(QString)),outputPlainTextEdit,SLOT(appendPlainText(QString)));
-    connect(imagePreviewWindow->getWorker(), SIGNAL(resultFinished(QString)), outputPlainTextEdit, SLOT(setPlainText(QString)));
+    connect(imagePreviewWindow->worker(), SIGNAL(resultFinished(QString)), outputPlainTextEdit, SLOT(setPlainText(QString)));
 
     // Tab widget    
     tabWidget =  new QTabWidget;
@@ -513,7 +524,7 @@ void MainWindow::setStartConditions()
     dataMinDoubleSpinBox->setValue(0);
     dataMaxDoubleSpinBox->setValue(1000);
     logCheckBox->setChecked(true);
-    autoBackgroundCorrectionCheckBox->setChecked(false);
+//    autoBackgroundCorrectionCheckBox->setChecked(false);
     correctionLorentzCheckBox->setChecked(true);
     imageModeComboBox->setCurrentIndex(1);
     imageModeComboBox->setCurrentIndex(0);
@@ -527,72 +538,22 @@ void MainWindow::setStartConditions()
     postCorrectionMaxDoubleSpinBox->setValue(1e6);
 }
 
-void MainWindow::applySelectionToAll()
-{
-    if (folderSet.size() > 0)
-    {
-        Selection selection = folderSet.current()->current()->selection();
-        Selection background = folderSet.current()->current()->background();
-        
-        folderSet.rememberCurrent();
 
-        folderSet.begin();
 
-        for (int i = 0; i < folderSet.size(); i++)
-        {        
-            folderSet.current()->rememberCurrent();
-            folderSet.current()->begin();
-            
-            for (int i = 0; i < folderSet.current()->size(); i++)
-            {
-                folderSet.current()->current()->setSelection(selection);
-                folderSet.current()->current()->setBackground(background);
-                folderSet.current()->next();
-            }
-            folderSet.current()->restoreMemory();
+//void MainWindow::applySelectionToNext()
+//{
+//    if (folderSet.size() > 0)
+//    {
+//        Selection selection = folderSet.current()->current()->selection();
+//        Selection background = folderSet.current()->current()->background();
 
-            folderSet.next();
-        }
-        folderSet.restoreMemory();
-    }
-}
-
-void MainWindow::applySelectionToFolder()
-{
-    if (folderSet.size() > 0)
-    {
-        Selection selection = folderSet.current()->current()->selection();
-        Selection background = folderSet.current()->current()->background();
+//        folderSet.current()->next();
+//        folderSet.current()->current()->setSelection(selection);
+//        folderSet.current()->current()->setBackground(background);
         
-        folderSet.current()->rememberCurrent();
-        
-        folderSet.current()->begin();
-        
-        for (int i = 0; i < folderSet.current()->size(); i++)
-        {
-            folderSet.current()->current()->setSelection(selection);
-            folderSet.current()->current()->setBackground(background);
-            folderSet.current()->next();
-        }
-        
-        folderSet.current()->restoreMemory();
-    }
-}
-
-void MainWindow::applySelectionToNext()
-{
-    if (folderSet.size() > 0)
-    {
-        Selection selection = folderSet.current()->current()->selection();
-        Selection background = folderSet.current()->current()->background();
-
-        folderSet.current()->next();
-        folderSet.current()->current()->setSelection(selection);
-        folderSet.current()->current()->setBackground(background);
-        
-        emit imageChanged(*folderSet.current()->current());
-    }
-}
+//        emit imageChanged(*folderSet.current()->current());
+//    }
+//}
 
 void MainWindow::setTab(int value)
 {
@@ -610,62 +571,71 @@ void MainWindow::setBatchSize(int value)
     batch_size = value;
 }
 
-void MainWindow::setImage(ImageInfo image)
+void MainWindow::setImageRange(int low, int high)
 {
-    if (folderSet.size() > 0)
-    {
-        *folderSet.current()->current() = image;
-
-        pathLineEdit->setText(folderSet.current()->current()->path());
-
-        setHeader(folderSet.current()->current()->path());
-
-        hasPendingChanges = true;
-    }
+    imageSpinBox->setRange(low, high);
 }
 
-void MainWindow::setSelection(Selection rect)
-{
-    if (folderSet.size() > 0)
-    {
-        folderSet.current()->current()->setSelection(rect);
+//void MainWindow::setImage(ImageInfo image)
+//{
+//    if (folderSet.size() > 0)
+//    {
+//        *folderSet.current()->current() = image;
+
+//        pathLineEdit->setText(folderSet.current()->current()->path());
+
+//        setHeader(folderSet.current()->current()->path());
+
+//        hasPendingChanges = true;
+//    }
+//}
+
+//void MainWindow::setSelection(Selection rect)
+//{
+//    if (folderSet.size() > 0)
+//    {
+//        folderSet.current()->current()->setSelection(rect);
         
-        hasPendingChanges = true;
-    }
-}
+//        hasPendingChanges = true;
+//    }
+//}
 
-void MainWindow::setBackground(Selection rect)
-{
-    if (folderSet.size() > 0)
-    {
-        folderSet.current()->current()->setBackground(rect);
+//void MainWindow::setBackground(Selection rect)
+//{
+//    if (folderSet.size() > 0)
+//    {
+//        folderSet.current()->current()->setBackground(rect);
 
-        hasPendingChanges = true;
-    }
-}
+//        hasPendingChanges = true;
+//    }
+//}
 
 
 void MainWindow::saveProject()
 {
     QFileDialog dialog;
     dialog.setDefaultSuffix("txt");
-    QString path = dialog.getSaveFileName(this, tr("Save project"), "", tr(".qt (*.qt);; All Files (*)"));
+    QString file_name = dialog.getSaveFileName(this, tr("Save project"), working_dir, tr(".qt (*.qt);; All Files (*)"));
 
-    if (path != "")
+    if (file_name != "")
     {
-        QFile file(path);
+        QFileInfo info(file_name);
+        working_dir = info.absoluteDir().path();
+        
+        QFile file(file_name);
         if (file.open(QIODevice::WriteOnly))
         {
             QDataStream out(&file);
             
-            out << folderSet;
+            out << imagePreviewWindow->worker()->set();
+            out << imageModeComboBox->currentText();
             out << tsfTextureComboBox->currentText();
             out << tsfAlphaComboBox->currentText();
             out << (double) dataMinDoubleSpinBox->value();
             out << (double) dataMaxDoubleSpinBox->value();
             out << (bool) logCheckBox->isChecked();
             out << (bool) correctionLorentzCheckBox->isChecked();  
-            out << (bool) autoBackgroundCorrectionCheckBox->isChecked();  
+            out << (double) noiseCorrectionMinDoubleSpinBox->value();
             
             file.close();
         }
@@ -676,61 +646,64 @@ void MainWindow::saveProject()
 
 void MainWindow::loadProject()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Open project"), "", tr(".qt (*.qt);; All Files (*)"));
+    QString file_name = QFileDialog::getOpenFileName(this, tr("Open project"), working_dir, tr(".qt (*.qt);; All Files (*)"));
 
-    if (path != "")
+    if (file_name != "")
     {
-        QFile file(path);
+        QFileInfo info(file_name);
+        working_dir = info.absoluteDir().path();
+        
+        QFile file(file_name);
         if (file.open(QIODevice::ReadOnly))
         {
+            SeriesSet set;
+            
+            QString mode;
             QString tsfTexture;
             QString tsfAlpha;
+            
             double dataMin;
             double dataMax;
             bool log;
             bool lorentzCorrection;
-            bool autoBackgroundCorrection;
+            double noise;
             
             QDataStream in(&file);
             
-            in >> folderSet >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> lorentzCorrection >> autoBackgroundCorrection;
+            in >> set >> mode >> tsfTexture >> tsfAlpha >> dataMin >> dataMax >> log >> lorentzCorrection >> noise;
             
+            emit setChanged(set);            
             
+            imageModeComboBox->setCurrentText(mode);
             tsfTextureComboBox->setCurrentText(tsfTexture);
             tsfAlphaComboBox->setCurrentText(tsfAlpha);
             dataMinDoubleSpinBox->setValue(dataMin);
             dataMaxDoubleSpinBox->setValue(dataMax);
             logCheckBox->setChecked(log);
             correctionLorentzCheckBox->setChecked(lorentzCorrection);
-            autoBackgroundCorrectionCheckBox->setChecked(autoBackgroundCorrection);
+            noiseCorrectionMinDoubleSpinBox->setValue(noise);
             
             file.close();
-
-            if (folderSet.size() > 0)
-            {
-                emit imageChanged(*folderSet.current()->current());
-                emit centerImage();
-            }
         }
     }
 }
 
-void MainWindow::removeImage()
-{
-    if (folderSet.size() > 0)
-    {
-        emit pathRemoved(folderSet.current()->current()->path());
+//void MainWindow::removeImage()
+//{
+//    if (folderSet.size() > 0)
+//    {
+//        emit pathRemoved(folderSet.current()->current()->path());
         
-        folderSet.current()->removeCurrent();
+//        folderSet.current()->removeCurrent();
 
-        if (folderSet.current()->size() == 0) folderSet.removeCurrent();
+//        if (folderSet.current()->size() == 0) folderSet.removeCurrent();
         
-        if (folderSet.size() > 0)
-        {
-            emit imageChanged(*folderSet.current()->next());
-        }
-    }
-}
+//        if (folderSet.size() > 0)
+//        {
+//            emit imageChanged(*folderSet.current()->next());
+//        }
+//    }
+//}
 
 void MainWindow::loadPaths()
 {
@@ -769,7 +742,7 @@ void MainWindow::loadPaths()
 
 void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
 {
-    folderSet.clear();
+    SeriesSet set;
     
     QMap<QString, QStringList>::const_iterator i = folder_map.constBegin();
     while (i != folder_map.constEnd())
@@ -790,70 +763,33 @@ void MainWindow::setFiles(QMap<QString, QStringList> folder_map)
             ++j;
         }
             
-        folderSet << folder;
+        set << folder;
 
         ++i;
     }
     
-    if (folderSet.size() > 0) 
+    if (!set.isEmpty()) 
     {
-        emit imageChanged(*folderSet.current()->current());
-        emit centerImage();
+        emit setChanged(set);
     }
 }
 
 
 void MainWindow::nextFrame()
 {
-    if (folderSet.size() > 0)
-    {
-        emit imageChanged(*folderSet.current()->next());
-    }
+    imageSpinBox->setValue(imageSpinBox->value()+1);    
 }
 
 void MainWindow::previousFrame()
 {
-    if (folderSet.size() > 0)
-    {
-        emit imageChanged(*folderSet.current()->previous());
-    }
+    imageSpinBox->setValue(imageSpinBox->value()-1);
 }
 
 void MainWindow::batchForward()
 {
-    if (folderSet.size() > 0)
-    {
-        for (size_t i = 0; i < batch_size; i++)
-        {
-            folderSet.current()->next();
-        }
-        
-        emit imageChanged(*folderSet.current()->current());
-    }
+    imageSpinBox->setValue(imageSpinBox->value()+batch_size);
 }
 void MainWindow::batchBackward()
 {
-    if (folderSet.size() > 0)
-    {
-        for (size_t i = 0; i < batch_size; i++)
-        {
-            folderSet.current()->previous();
-        }
-        
-        emit imageChanged(*folderSet.current()->current());
-    }
-}
-void MainWindow::nextFolder()
-{
-    if (folderSet.size() > 0)
-    {
-        emit imageChanged(*folderSet.next()->current());
-    }
-}
-void MainWindow::previousFolder()
-{
-    if (folderSet.size() > 0)
-    {
-        emit imageChanged(*folderSet.previous()->current());
-    }
+    imageSpinBox->setValue(imageSpinBox->value()-batch_size);
 }

@@ -27,25 +27,23 @@ public slots:
     void previousFrame();
     void batchForward();
     void batchBackward();
-    void nextFolder();
-    void previousFolder();
     void setHeader(QString path);
-    void setSelection(Selection rect);
-    void setBackground(Selection rect);
-    void applySelectionToAll();
-    void applySelectionToFolder();
-    void applySelectionToNext();
+//    void setSelection(Selection rect);
+//    void setBackground(Selection rect);
+//    void applySelectionToNext();
     void saveProject();
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
-    void removeImage();
+//    void removeImage();
+    
     void integrateSelectedMode();
     void peakHuntSelectedMode();
     void applySelectionMode();
     void setSelectionMode(int value);
     void setIntegrationMode(int value);
-    void setImage(ImageInfo image);
+//    void setImage(ImageInfo image);
     void setBatchSize(int value);
+    void setImageRange(int low, int high);
     
 signals:
     void pathRemoved(QString path);
@@ -55,13 +53,16 @@ signals:
     void outputTextAppended(QString str);
     void outputTextChanged(QString str);
     void integrateCurrentFrame(QString path, QRect rect);
-    void integrateImage(ImageInfo image);
-    void analyzeFolder(ImageSeries folder);
-    void analyzeSet(SeriesSet set);
-    void peakHuntImage(ImageInfo image);
-    void peakHuntFolder(ImageSeries folder);
-    void peakHuntSet(SeriesSet set);
-
+    void integrateImage();
+    void analyzeFolder();
+    void analyzeSet();
+    void peakHuntImage();
+    void peakHuntFolder();
+    void peakHuntSet();
+    void applySelectionToSeriesSet();
+    void applySelectionToSeries();
+    void setChanged(SeriesSet set);
+    
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -74,6 +75,8 @@ private:
     void setStartConditions();
     void readSettings();
     void writeSettings();
+    
+    QString working_dir;
     
     QTabWidget * tabWidget;
     QWidget * fileWidget;
@@ -110,6 +113,7 @@ private:
     QPushButton * removeCurrentPushButton;
     QPushButton * applySelectionPushButton;
     QSpinBox * batchSizeSpinBox;
+    QSpinBox * imageSpinBox;
     
     QComboBox * selectionModeComboBox;
     QComboBox * imageModeComboBox;
@@ -118,7 +122,7 @@ private:
     QDoubleSpinBox * dataMinDoubleSpinBox;
     QDoubleSpinBox * dataMaxDoubleSpinBox;
     QCheckBox * logCheckBox;
-    QCheckBox * autoBackgroundCorrectionCheckBox;
+//    QCheckBox * autoBackgroundCorrectionCheckBox;
     QCheckBox * correctionLorentzCheckBox;
     QDoubleSpinBox * noiseCorrectionMinDoubleSpinBox;
     QDoubleSpinBox * noiseCorrectionMaxDoubleSpinBox;
@@ -144,7 +148,7 @@ private:
     SharedContextWindow * sharedContextWindow ;
     OpenCLContext * context_cl;
 
-    SeriesSet folderSet;
+//    SeriesSet folderSet;
 
     bool hasPendingChanges;
     int integration_mode;
