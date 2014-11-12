@@ -196,13 +196,13 @@ void MainWindow::initLayout()
     saveProjectAction = new QAction(QIcon(":/art/save.png"), tr("Save project"), this);
     loadProjectAction = new QAction(QIcon(":/art/open.png"), tr("Load project"), this);
     
-    squareAreaSelectAlphaAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
-    squareAreaSelectAlphaAction->setCheckable(true);
-    squareAreaSelectAlphaAction->setChecked(false);
+//    squareAreaSelectAlphaAction = new QAction(QIcon(":/art/select.png"), tr("Toggle pixel selection"), this);
+//    squareAreaSelectAlphaAction->setCheckable(true);
+//    squareAreaSelectAlphaAction->setChecked(false);
 
-    squareAreaSelectBetaAction = new QAction(QIcon(":/art/select2.png"), tr("Toggle background selection"), this);
-    squareAreaSelectBetaAction->setCheckable(true);
-    squareAreaSelectBetaAction->setChecked(false);
+//    squareAreaSelectBetaAction = new QAction(QIcon(":/art/select2.png"), tr("Toggle background selection"), this);
+//    squareAreaSelectBetaAction->setCheckable(true);
+//    squareAreaSelectBetaAction->setChecked(false);
     
     centerImageAction = new QAction(QIcon(":/art/center.png"), tr("Center image"), this);
     centerImageAction->setCheckable(false);
@@ -215,23 +215,21 @@ void MainWindow::initLayout()
     imageToolBar->addAction(loadProjectAction);
     imageToolBar->addAction(centerImageAction);
     imageToolBar->addAction(showWeightCenterAction);
-    imageToolBar->addAction(squareAreaSelectAlphaAction);
+//    imageToolBar->addAction(squareAreaSelectAlphaAction);
 //    imageToolBar->addAction(squareAreaSelectBetaAction);
     imageToolBar->addWidget(pathLineEdit);
 
     imageWidget->addToolBar(Qt::TopToolBarArea, imageToolBar);
 
     // Dock widget
-    nextFramePushButton = new QPushButton;
-    nextFramePushButton->setIcon(QIcon(":/art/forward.png"));
-    previousFramePushButton = new QPushButton;
-    previousFramePushButton->setIcon(QIcon(":/art/back.png"));
-    batchForwardPushButton = new QPushButton;
-    batchForwardPushButton->setIcon(QIcon(":/art/fast_forward.png"));
-    batchBackwardPushButton = new QPushButton;
-    batchBackwardPushButton->setIcon(QIcon(":/art/fast_back.png"));
-    nextFolderPushButton = new QPushButton(QIcon(":/art/forward.png"),"Next series");
-    previousFolderPushButton = new QPushButton(QIcon(":/art/back.png"),"Previous series");
+    nextFramePushButton = new QPushButton(QIcon(":/art/forward.png"),"Next");
+    previousFramePushButton = new QPushButton(QIcon(":/art/back.png"),"Prev");
+    batchForwardPushButton = new QPushButton(QIcon(":/art/fast_forward.png"), "Skip");
+    batchBackwardPushButton = new QPushButton(QIcon(":/art/fast_back.png"), "Skip");
+    nextSeriesPushButton = new QPushButton(QIcon(":/art/next_series.png"),"Next series");
+    nextSeriesPushButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+    prevSeriesPushButton = new QPushButton(QIcon(":/art/prev_series.png"),"Prev series");
+    prevSeriesPushButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
     
     removeCurrentPushButton = new QPushButton(QIcon(":/art/kill.png"),"Remove frame");
     
@@ -251,16 +249,16 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(nextFramePushButton,0,4,1,1);
     navigationLayout->addWidget(batchForwardPushButton,0,5,1,1);
     
-    navigationLayout->addWidget(previousFolderPushButton,1,0,1,2);
+    navigationLayout->addWidget(prevSeriesPushButton,1,0,2,2);
     navigationLayout->addWidget(batchSizeSpinBox,1,2,1,2);
-    navigationLayout->addWidget(nextFolderPushButton,1,4,1,2);
+    navigationLayout->addWidget(nextSeriesPushButton,1,4,2,2);
     
     navigationLayout->addWidget(removeCurrentPushButton, 2, 2, 1 , 2);
     
     navigationWidget = new QWidget;
     navigationWidget->setLayout(navigationLayout);
 
-    navigationDock =  new QDockWidget("Navigate");
+    navigationDock =  new QDockWidget("Navigation");
 //    navigationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     navigationDock->setWidget(navigationWidget);
     navigationDock->setFixedHeight(navigationWidget->minimumSizeHint().height()*1.2);
@@ -319,6 +317,8 @@ void MainWindow::initLayout()
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, settingsDock);
     
     // Dock widget
+    estimateBacgroundPushButton = new QPushButton("Estimate b/g");
+    
     noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
     noiseCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
     noiseCorrectionMinDoubleSpinBox->setPrefix("Noise: ");
@@ -339,7 +339,8 @@ void MainWindow::initLayout()
 
     
     QGridLayout * correctionLayout = new QGridLayout;
-    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,0,0,1,2);
+    correctionLayout->addWidget(estimateBacgroundPushButton,0,0,1,2);
+    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,1,0,1,2);
 //    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
 //    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
 //    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
@@ -387,7 +388,7 @@ void MainWindow::initLayout()
 
     integratePushButton = new QPushButton("Analyze");
     
-    peakHuntPushButton = new QPushButton("Hunt peak");
+//    peakHuntPushButton = new QPushButton("Hunt peak");
 
     QGridLayout * calculationLayout = new QGridLayout;
     calculationLayout->addWidget(integrationModeComboBox,0,0,1,1);
@@ -466,8 +467,8 @@ void MainWindow::initLayout()
     connect(previousFramePushButton, SIGNAL(clicked()), this, SLOT(previousFrame()));
     connect(batchForwardPushButton, SIGNAL(clicked()), this, SLOT(batchForward()));
     connect(batchBackwardPushButton, SIGNAL(clicked()), this, SLOT(batchBackward()));
-    connect(nextFolderPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(nextSeries()));
-    connect(previousFolderPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(prevSeries()));
+    connect(nextSeriesPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(nextSeries()));
+    connect(prevSeriesPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(prevSeries()));
     connect(removeCurrentPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(removeCurrentImage()));
     connect(imagePreviewWindow->worker(), SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
     connect(this, SIGNAL(applySelectionToSeries()), imagePreviewWindow->worker(), SLOT(applySelectionToSeries()));
@@ -478,6 +479,7 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(imageRangeChanged(int,int)), this, SLOT(setImageRange(int, int)));
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
+    connect(estimateBacgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(estimateBackground()));
 
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
@@ -490,10 +492,10 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(integrateImage()), imagePreviewWindow->worker(), SLOT(analyzeSingle()));
     connect(this, SIGNAL(analyzeFolder()), imagePreviewWindow->worker(), SLOT(analyzeFolder()));
     connect(this, SIGNAL(analyzeSet()), imagePreviewWindow->worker(), SLOT(analyzeSet()));
-    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionAlphaActive(bool)));
-    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionBetaActive(bool)));
-    connect(imagePreviewWindow->worker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
-    connect(imagePreviewWindow->worker(), SIGNAL(selectionBetaChanged(bool)), squareAreaSelectBetaAction, SLOT(setChecked(bool)));
+//    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionAlphaActive(bool)));
+//    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionBetaActive(bool)));
+//    connect(imagePreviewWindow->worker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
+//    connect(imagePreviewWindow->worker(), SIGNAL(selectionBetaChanged(bool)), squareAreaSelectBetaAction, SLOT(setChecked(bool)));
     connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseLow(double)));
     connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseHigh(double)));
     connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdPostCorrectionLow(double)));

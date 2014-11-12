@@ -108,8 +108,8 @@ private:
     QPushButton * batchForwardPushButton;
     QPushButton * batchBackwardPushButton;
     size_t batch_size;
-    QPushButton * nextFolderPushButton;
-    QPushButton * previousFolderPushButton;
+    QPushButton * nextSeriesPushButton;
+    QPushButton * prevSeriesPushButton;
     QPushButton * removeCurrentPushButton;
     QPushButton * applySelectionPushButton;
     QSpinBox * batchSizeSpinBox;
@@ -133,14 +133,15 @@ private:
 
     QComboBox * integrationModeComboBox;
     QPushButton * integratePushButton;
-    QPushButton * peakHuntPushButton;
+//    QPushButton * peakHuntPushButton;
+    QPushButton * estimateBacgroundPushButton;
     QLineEdit * pathLineEdit;
     QToolBar * imageToolBar;
     
     QAction * saveProjectAction;
     QAction * loadProjectAction;
-    QAction * squareAreaSelectAlphaAction;
-    QAction * squareAreaSelectBetaAction;
+//    QAction * squareAreaSelectAlphaAction;
+//    QAction * squareAreaSelectBetaAction;
     QAction * centerImageAction;
     QAction * showWeightCenterAction;
     
