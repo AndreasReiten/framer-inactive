@@ -134,7 +134,8 @@ private:
     QComboBox * integrationModeComboBox;
     QPushButton * integratePushButton;
 //    QPushButton * peakHuntPushButton;
-    QPushButton * estimateBacgroundPushButton;
+    QPushButton * estimateBackgroundPushButton;
+    QPushButton * setSeriesBackgroundPushButton;
     QLineEdit * pathLineEdit;
     QToolBar * imageToolBar;
     

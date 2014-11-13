@@ -317,7 +317,8 @@ void MainWindow::initLayout()
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, settingsDock);
     
     // Dock widget
-    estimateBacgroundPushButton = new QPushButton("Estimate b/g");
+    estimateBackgroundPushButton = new QPushButton("Estimate b/g");
+    setSeriesBackgroundPushButton = new QPushButton("Set series b/g");
     
     noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
     noiseCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
@@ -339,12 +340,13 @@ void MainWindow::initLayout()
 
     
     QGridLayout * correctionLayout = new QGridLayout;
-    correctionLayout->addWidget(estimateBacgroundPushButton,0,0,1,2);
-    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,1,0,1,2);
+    correctionLayout->addWidget(estimateBackgroundPushButton,0,0,1,2);
+    correctionLayout->addWidget(setSeriesBackgroundPushButton,1,0,1,2);
+    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,2,0,1,2);
 //    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
 //    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
 //    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
-    correctionLayout->addWidget(correctionLorentzCheckBox,2,0,1,2);
+    correctionLayout->addWidget(correctionLorentzCheckBox,3,0,1,2);
 //    correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
     
     correctionWidget = new QWidget;
@@ -479,7 +481,8 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(imageRangeChanged(int,int)), this, SLOT(setImageRange(int, int)));
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
-    connect(estimateBacgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(estimateBackground()));
+    connect(estimateBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(estimateBackground()));
+    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
 
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
