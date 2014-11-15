@@ -13,6 +13,7 @@
 #include <QToolBar>
 #include <QAction>
 #include <QCheckBox>
+#include <QProgressBar>
 #include <QRect>
 
 #include "lib/qxlib/qxlib.h"
@@ -85,6 +86,7 @@ private:
     QWidget * imageDisplayWidget;
     QPlainTextEdit * imageHeaderWidget;
     QPlainTextEdit * outputPlainTextEdit;
+    QProgressBar * generalProgressBar;
     
     
     QLineEdit * fileFilter;
@@ -135,7 +137,7 @@ private:
     QPushButton * integratePushButton;
 //    QPushButton * peakHuntPushButton;
     QPushButton * estimateBackgroundPushButton;
-    QPushButton * setSeriesBackgroundPushButton;
+//    QPushButton * setSeriesBackgroundPushButton;
     QLineEdit * pathLineEdit;
     QToolBar * imageToolBar;
     

@@ -241,6 +241,10 @@ void MainWindow::initLayout()
     
     connect(batchSizeSpinBox, SIGNAL(valueChanged(int)), this, SLOT(setBatchSize(int)));
     
+    generalProgressBar = new QProgressBar;
+    generalProgressBar->hide();
+    generalProgressBar->setFormat("%v of %m");
+
     QGridLayout * navigationLayout = new QGridLayout;
     
     navigationLayout->addWidget(batchBackwardPushButton,0,0,1,1);
@@ -254,6 +258,8 @@ void MainWindow::initLayout()
     navigationLayout->addWidget(nextSeriesPushButton,1,4,2,2);
     
     navigationLayout->addWidget(removeCurrentPushButton, 2, 2, 1 , 2);
+
+    navigationLayout->addWidget(generalProgressBar, 3, 0, 1 , 6);
     
     navigationWidget = new QWidget;
     navigationWidget->setLayout(navigationLayout);
@@ -318,7 +324,7 @@ void MainWindow::initLayout()
     
     // Dock widget
     estimateBackgroundPushButton = new QPushButton("Estimate b/g");
-    setSeriesBackgroundPushButton = new QPushButton("Set series b/g");
+//    setSeriesBackgroundPushButton = new QPushButton("Set series b/g");
     
     noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
     noiseCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
@@ -341,7 +347,7 @@ void MainWindow::initLayout()
     
     QGridLayout * correctionLayout = new QGridLayout;
     correctionLayout->addWidget(estimateBackgroundPushButton,0,0,1,2);
-    correctionLayout->addWidget(setSeriesBackgroundPushButton,1,0,1,2);
+//    correctionLayout->addWidget(setSeriesBackgroundPushButton,1,0,1,2);
     correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,2,0,1,2);
 //    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
 //    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
@@ -482,7 +488,10 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
     connect(estimateBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(estimateBackground()));
-    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
+//    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
+    connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
+    connect(imagePreviewWindow->worker(), SIGNAL(progressRangeChanged(int,int)), generalProgressBar, SLOT(setRange(int,int)));
+    connect(imagePreviewWindow->worker(), SIGNAL(visibilityChanged(bool)), generalProgressBar, SLOT(setHidden(bool)));
 
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
@@ -515,8 +524,8 @@ void MainWindow::initLayout()
 
     // Tab widget    
     tabWidget =  new QTabWidget;
-    setCentralWidget(tabWidget);
-    
+    this->setCentralWidget(tabWidget);
+
     tabWidget->addTab(fileWidget, "Files");
     tabWidget->addTab(imageWidget, "View");
     tabWidget->addTab(outputPlainTextEdit, "Text output");
