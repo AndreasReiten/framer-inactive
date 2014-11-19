@@ -323,7 +323,7 @@ void MainWindow::initLayout()
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, settingsDock);
     
     // Dock widget
-    estimateBackgroundPushButton = new QPushButton("Estimate b/g");
+    estimateBackgroundPushButton = new QPushButton("Series trace");
 //    setSeriesBackgroundPushButton = new QPushButton("Set series b/g");
     
     noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
@@ -490,7 +490,7 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(imageRangeChanged(int,int)), this, SLOT(setImageRange(int, int)));
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
-    connect(estimateBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(estimateBackground()));
+    connect(estimateBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(traceSeries()));
 //    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
     connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
     connect(imagePreviewWindow->worker(), SIGNAL(progressRangeChanged(int,int)), generalProgressBar, SLOT(setRange(int,int)));
