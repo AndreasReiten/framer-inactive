@@ -126,6 +126,7 @@ private:
     QCheckBox * logCheckBox;
 //    QCheckBox * autoBackgroundCorrectionCheckBox;
     QCheckBox * correctionLorentzCheckBox;
+    QCheckBox * correctionBackgroundCheckBox;
     QDoubleSpinBox * noiseCorrectionMinDoubleSpinBox;
     QDoubleSpinBox * noiseCorrectionMaxDoubleSpinBox;
     QDoubleSpinBox * postCorrectionMinDoubleSpinBox;

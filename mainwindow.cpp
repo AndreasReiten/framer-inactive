@@ -341,6 +341,7 @@ void MainWindow::initLayout()
     postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
     
     correctionLorentzCheckBox = new QCheckBox("Lorentz correction");
+    correctionBackgroundCheckBox = new QCheckBox("Background correction");
 //    autoBackgroundCorrectionCheckBox = new QCheckBox("Automatic background subtraction");
     
 
@@ -352,7 +353,8 @@ void MainWindow::initLayout()
 //    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
 //    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
 //    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
-    correctionLayout->addWidget(correctionLorentzCheckBox,3,0,1,2);
+    correctionLayout->addWidget(correctionBackgroundCheckBox,3,0,1,2);
+    correctionLayout->addWidget(correctionLorentzCheckBox,4,0,1,2);
 //    correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
     
     correctionWidget = new QWidget;
@@ -465,6 +467,7 @@ void MainWindow::initLayout()
     connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setDataMax(double)));
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setLog(bool)));
     connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrectionLorentz(bool)));
+    connect(correctionBackgroundCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrectionBackground(bool)));
 //    connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setAutoBackgroundCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
@@ -543,7 +546,8 @@ void MainWindow::setStartConditions()
     dataMaxDoubleSpinBox->setValue(1000);
     logCheckBox->setChecked(true);
 //    autoBackgroundCorrectionCheckBox->setChecked(false);
-    correctionLorentzCheckBox->setChecked(true);
+    correctionLorentzCheckBox->setChecked(false);
+    correctionBackgroundCheckBox->setChecked(false);
     imageModeComboBox->setCurrentIndex(1);
     imageModeComboBox->setCurrentIndex(0);
     
