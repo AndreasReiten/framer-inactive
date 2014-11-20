@@ -40,8 +40,8 @@ public slots:
     void integrateSelectedMode();
 //    void peakHuntSelectedMode();
     void applySelectionMode();
-    void setSelectionMode(int value);
-    void setIntegrationMode(int value);
+    void setSelectionMode(QString str);
+    void setIntegrationMode(QString str);
 //    void setImage(ImageInfo image);
     void setBatchSize(int value);
     void setImageRange(int low, int high);
@@ -55,7 +55,7 @@ signals:
 //    void outputTextChanged(QString str);
 //    void integrateCurrentFrame(QString path, QRect rect);
     void integrateImage();
-    void analyzeFolder();
+    void analyzeSeries();
     void analyzeSet();
 //    void peakHuntImage();
 //    void peakHuntFolder();
@@ -126,18 +126,30 @@ private:
     QCheckBox * logCheckBox;
 //    QCheckBox * autoBackgroundCorrectionCheckBox;
     QCheckBox * correctionLorentzCheckBox;
-    QCheckBox * correctionBackgroundCheckBox;
-    QDoubleSpinBox * noiseCorrectionMinDoubleSpinBox;
+    QCheckBox * correctionNoiseCheckBox;
+    QCheckBox * correctionPlaneCheckBox;
+    QCheckBox * correctionClutterCheckBox;
+    QCheckBox * correctionMedianCheckBox;
+    QCheckBox * correctionPolarizationCheckBox;
+    QCheckBox * correctionFluxCheckBox;
+    QCheckBox * correctionExposureCheckBox;
+    
+//    QCheckBox * correctionLorentzCheckBox;
+//    QCheckBox * correctionBackgroundCheckBox;
+    QDoubleSpinBox * correctionNoiseDoubleSpinBox;
     QDoubleSpinBox * noiseCorrectionMaxDoubleSpinBox;
     QDoubleSpinBox * postCorrectionMinDoubleSpinBox;
     QDoubleSpinBox * postCorrectionMaxDoubleSpinBox;
+    QSpinBox * correctionClutterSpinBox;
+    QSpinBox * correctionMedianSpinBox;
+    
     QWidget * correctionWidget;
     QDockWidget * correctionDock;
 
     QComboBox * integrationModeComboBox;
     QPushButton * integratePushButton;
 //    QPushButton * peakHuntPushButton;
-    QPushButton * estimateBackgroundPushButton;
+    QPushButton * traceSetPushButton;
 //    QPushButton * setSeriesBackgroundPushButton;
     QLineEdit * pathLineEdit;
     QToolBar * imageToolBar;
@@ -156,8 +168,8 @@ private:
 //    SeriesSet folderSet;
 
     bool hasPendingChanges;
-    int integration_mode;
-    int selection_mode;
+    QString integration_mode;
+    QString selection_mode;
     
     // Integration
     double integration_sum;

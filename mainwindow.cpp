@@ -11,9 +11,9 @@
 
 MainWindow::MainWindow(QWidget *parent) : 
     QMainWindow(parent),
-    hasPendingChanges(false),
-    integration_mode(0),
-    selection_mode(0)
+    hasPendingChanges(false)
+//    integration_mode(0),
+//    selection_mode(0)
 {
     // Stylesheet
     QFile styleFile( ":/stylesheets/plain.qss" );
@@ -64,31 +64,14 @@ void MainWindow::writeSettings()
 
 void MainWindow::integrateSelectedMode()
 {
-//    folderSet.current()->rememberCurrent();
-//    folderSet.rememberCurrent();
-
-    switch (integration_mode)
+    if (selection_mode == "Series")
     {
-        case 0: // Single
-            emit integrateImage(); 
-            break;
-
-        case 1: // Folder
-            emit analyzeFolder();
-            break;
-
-        case 2: // All
-            emit analyzeSet();
-            break;
-
-        default: // Should not occur
-            break;
+        emit analyzeSeries();
     }
-    
-//    folderSet.restoreMemory();
-//    folderSet.current()->restoreMemory();
-
-//    emit imageChanged(*folderSet.current()->current());
+    else if (selection_mode == "Set")
+    {
+        emit analyzeSet();
+    }
 }
 
 //void MainWindow::peakHuntSelectedMode()
@@ -124,35 +107,24 @@ void MainWindow::integrateSelectedMode()
 
 void MainWindow::applySelectionMode()
 {
-
-
-    switch (selection_mode)
+    if (selection_mode == "Series")
     {
-        case 0: // Single
-//            emit applySelectionToNext();
-            break;
-
-        case 1: // Folder
-            emit applySelectionToSeries();
-            break;
-
-        case 2: // All
-            emit applySelectionToSeriesSet();
-            break;
-
-        default: // Should not occur
-            break;
+        emit applySelectionToSeries();
+    }
+    else if (selection_mode == "Set")
+    {
+        emit applySelectionToSeriesSet();
     }
 }
 
-void MainWindow::setSelectionMode(int value)
+void MainWindow::setSelectionMode(QString str)
 {
-    selection_mode = value;
+    selection_mode = str;
 }
 
-void MainWindow::setIntegrationMode(int value)
+void MainWindow::setIntegrationMode(QString str)
 {
-    integration_mode = value;
+    integration_mode = str;
 }
 
 
@@ -323,12 +295,12 @@ void MainWindow::initLayout()
     imageWidget->addDockWidget(Qt::LeftDockWidgetArea, settingsDock);
     
     // Dock widget
-    estimateBackgroundPushButton = new QPushButton("Series trace");
+    traceSetPushButton = new QPushButton("Trace set");
 //    setSeriesBackgroundPushButton = new QPushButton("Set series b/g");
     
-    noiseCorrectionMinDoubleSpinBox = new QDoubleSpinBox;
-    noiseCorrectionMinDoubleSpinBox->setRange(-1e6,1e6);
-    noiseCorrectionMinDoubleSpinBox->setPrefix("Noise: ");
+    correctionNoiseDoubleSpinBox = new QDoubleSpinBox;
+    correctionNoiseDoubleSpinBox->setRange(0,1e4);
+//    noiseCorrectionMinDoubleSpinBox->setPrefix("Noise: ");
     
     noiseCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
     noiseCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
@@ -340,22 +312,41 @@ void MainWindow::initLayout()
     postCorrectionMaxDoubleSpinBox = new QDoubleSpinBox;
     postCorrectionMaxDoubleSpinBox->setRange(-1e6,1e6);
     
+    correctionClutterSpinBox = new QSpinBox;
+    correctionClutterSpinBox->setRange(0,100);
+    correctionClutterSpinBox->setSuffix(" units");
+            
+    correctionMedianSpinBox = new QSpinBox;
+    correctionMedianSpinBox->setRange(0,100);
+    correctionMedianSpinBox->setPrefix("n x n: ");
+            
+    correctionNoiseCheckBox = new QCheckBox("Flat b/g subtract: ");
+    correctionPlaneCheckBox = new QCheckBox("Planar b/g subtract");
+    correctionClutterCheckBox = new QCheckBox("Clutter removal: ");
+    correctionMedianCheckBox = new QCheckBox("Median filter: ");
     correctionLorentzCheckBox = new QCheckBox("Lorentz correction");
-    correctionBackgroundCheckBox = new QCheckBox("Background correction");
+    correctionPolarizationCheckBox = new QCheckBox("Polarization correction");
+    correctionFluxCheckBox = new QCheckBox("Flux normalization");
+    correctionExposureCheckBox = new QCheckBox("Exposure time normalization");
+    
+//    correctionBackgroundCheckBox = new QCheckBox("Background correction");
 //    autoBackgroundCorrectionCheckBox = new QCheckBox("Automatic background subtraction");
     
 
     
     QGridLayout * correctionLayout = new QGridLayout;
-    correctionLayout->addWidget(estimateBackgroundPushButton,0,0,1,2);
-//    correctionLayout->addWidget(setSeriesBackgroundPushButton,1,0,1,2);
-    correctionLayout->addWidget(noiseCorrectionMinDoubleSpinBox,2,0,1,2);
-//    correctionLayout->addWidget(noiseCorrectionMaxDoubleSpinBox,0,1,1,1);
-//    correctionLayout->addWidget(postCorrectionMinDoubleSpinBox,1,0,1,1);
-//    correctionLayout->addWidget(postCorrectionMaxDoubleSpinBox,1,1,1,1);
-    correctionLayout->addWidget(correctionBackgroundCheckBox,3,0,1,2);
-    correctionLayout->addWidget(correctionLorentzCheckBox,4,0,1,2);
-//    correctionLayout->addWidget(autoBackgroundCorrectionCheckBox,3,0,1,2);
+    correctionLayout->addWidget(traceSetPushButton,0,0,1,2);
+    correctionLayout->addWidget(correctionNoiseCheckBox,1,0,1,1);
+    correctionLayout->addWidget(correctionNoiseDoubleSpinBox,1,1,1,1);
+    correctionLayout->addWidget(correctionPlaneCheckBox,2,0,1,2);
+    correctionLayout->addWidget(correctionClutterCheckBox,3,0,1,1);
+    correctionLayout->addWidget(correctionClutterSpinBox,3,1,1,1);
+    correctionLayout->addWidget(correctionMedianCheckBox,4,0,1,1);
+    correctionLayout->addWidget(correctionMedianSpinBox,4,1,1,1);
+    correctionLayout->addWidget(correctionLorentzCheckBox,5,0,1,2);
+    correctionLayout->addWidget(correctionPolarizationCheckBox,6,0,1,2);
+    correctionLayout->addWidget(correctionFluxCheckBox,7,0,1,2);
+    correctionLayout->addWidget(correctionExposureCheckBox,8,0,1,2);
     
     correctionWidget = new QWidget;
     correctionWidget->setLayout(correctionLayout);
@@ -373,9 +364,8 @@ void MainWindow::initLayout()
     applySelectionPushButton  = new QPushButton("Apply selection");
 
     selectionModeComboBox = new QComboBox;
-    selectionModeComboBox->addItem("Next");
-    selectionModeComboBox->addItem("Folder");
-    selectionModeComboBox->addItem("All");
+    selectionModeComboBox->addItem("Series");
+    selectionModeComboBox->addItem("Set");
 
     QGridLayout *selectionLayout = new QGridLayout;
     selectionLayout->addWidget(selectionModeComboBox, 0, 0, 1, 2);
@@ -392,9 +382,8 @@ void MainWindow::initLayout()
 
     // Dock widget
     integrationModeComboBox = new QComboBox;
-    integrationModeComboBox->addItem("Single");
-    integrationModeComboBox->addItem("Folder");
-    integrationModeComboBox->addItem("All");
+    integrationModeComboBox->addItem("Series");
+    integrationModeComboBox->addItem("Set");
 
     integratePushButton = new QPushButton("Analyze");
     
@@ -467,7 +456,7 @@ void MainWindow::initLayout()
     connect(dataMaxDoubleSpinBox, SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setDataMax(double)));
     connect(logCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setLog(bool)));
     connect(correctionLorentzCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrectionLorentz(bool)));
-    connect(correctionBackgroundCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrectionBackground(bool)));
+//    connect(correctionBackgroundCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setCorrectionBackground(bool)));
 //    connect(autoBackgroundCorrectionCheckBox, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setAutoBackgroundCorrection(bool)));
     connect(imageModeComboBox, SIGNAL(currentIndexChanged(int)), imagePreviewWindow->worker(), SLOT(setMode(int)));
     connect(saveProjectAction, SIGNAL(triggered()), this, SLOT(saveProject()));
@@ -490,11 +479,19 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(imageRangeChanged(int,int)), this, SLOT(setImageRange(int, int)));
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
-    connect(estimateBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(traceSeries()));
+    connect(traceSetPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(traceSet()));
 //    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
     connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
     connect(imagePreviewWindow->worker(), SIGNAL(progressRangeChanged(int,int)), generalProgressBar, SLOT(setRange(int,int)));
     connect(imagePreviewWindow->worker(), SIGNAL(visibilityChanged(bool)), generalProgressBar, SLOT(setHidden(bool)));
+    connect(correctionNoiseCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionNoise()));
+    connect(correctionPlaneCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionPlane()));
+    connect(correctionClutterCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionClutter()));
+    connect(correctionMedianCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionMedian()));
+    connect(correctionPolarizationCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionPolarization()));
+    connect(correctionFluxCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionFlux()));
+    connect(correctionExposureCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionExposure()));
+    
 
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
@@ -502,20 +499,20 @@ void MainWindow::initLayout()
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
 //    connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
-    connect(integrationModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setIntegrationMode(int)));
-    connect(selectionModeComboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(setSelectionMode(int)));
+    connect(integrationModeComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(setIntegrationMode(QString)));
+    connect(selectionModeComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(setSelectionMode(QString)));
     connect(this, SIGNAL(integrateImage()), imagePreviewWindow->worker(), SLOT(analyzeSingle()));
-    connect(this, SIGNAL(analyzeFolder()), imagePreviewWindow->worker(), SLOT(analyzeFolder()));
+    connect(this, SIGNAL(analyzeSeries()), imagePreviewWindow->worker(), SLOT(analyzeSeries()));
     connect(this, SIGNAL(analyzeSet()), imagePreviewWindow->worker(), SLOT(analyzeSet()));
 //    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionAlphaActive(bool)));
 //    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionBetaActive(bool)));
 //    connect(imagePreviewWindow->worker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
 //    connect(imagePreviewWindow->worker(), SIGNAL(selectionBetaChanged(bool)), squareAreaSelectBetaAction, SLOT(setChecked(bool)));
-    connect(noiseCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseLow(double)));
+    connect(correctionNoiseDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseLow(double)));
     connect(noiseCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdNoiseHigh(double)));
     connect(postCorrectionMinDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdPostCorrectionLow(double)));
     connect(postCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdPostCorrectionHigh(double)));
-    connect(imagePreviewWindow->worker(), SIGNAL(noiseLowChanged(double)), noiseCorrectionMinDoubleSpinBox, SLOT(setValue(double)));
+    connect(imagePreviewWindow->worker(), SIGNAL(noiseLowChanged(double)), correctionNoiseDoubleSpinBox, SLOT(setValue(double)));
     
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
@@ -547,12 +544,12 @@ void MainWindow::setStartConditions()
     logCheckBox->setChecked(true);
 //    autoBackgroundCorrectionCheckBox->setChecked(false);
     correctionLorentzCheckBox->setChecked(false);
-    correctionBackgroundCheckBox->setChecked(false);
+//    correctionBackgroundCheckBox->setChecked(false);
     imageModeComboBox->setCurrentIndex(1);
     imageModeComboBox->setCurrentIndex(0);
     
-    noiseCorrectionMinDoubleSpinBox->setValue(1);
-    noiseCorrectionMinDoubleSpinBox->setValue(0);
+    correctionNoiseDoubleSpinBox->setValue(1);
+    correctionNoiseDoubleSpinBox->setValue(0);
     noiseCorrectionMaxDoubleSpinBox->setValue(1e6);
     
     postCorrectionMinDoubleSpinBox->setValue(1);
@@ -657,7 +654,7 @@ void MainWindow::saveProject()
             out << (double) dataMaxDoubleSpinBox->value();
             out << (bool) logCheckBox->isChecked();
             out << (bool) correctionLorentzCheckBox->isChecked();  
-            out << (double) noiseCorrectionMinDoubleSpinBox->value();
+            out << (double) correctionNoiseDoubleSpinBox->value();
             
             file.close();
         }
@@ -703,7 +700,7 @@ void MainWindow::loadProject()
             dataMaxDoubleSpinBox->setValue(dataMax);
             logCheckBox->setChecked(log);
             correctionLorentzCheckBox->setChecked(lorentzCorrection);
-            noiseCorrectionMinDoubleSpinBox->setValue(noise);
+            correctionNoiseDoubleSpinBox->setValue(noise);
             
             file.close();
         }
