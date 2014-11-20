@@ -484,13 +484,13 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
     connect(imagePreviewWindow->worker(), SIGNAL(progressRangeChanged(int,int)), generalProgressBar, SLOT(setRange(int,int)));
     connect(imagePreviewWindow->worker(), SIGNAL(visibilityChanged(bool)), generalProgressBar, SLOT(setHidden(bool)));
-    connect(correctionNoiseCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionNoise()));
-    connect(correctionPlaneCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionPlane()));
-    connect(correctionClutterCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionClutter()));
-    connect(correctionMedianCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionMedian()));
-    connect(correctionPolarizationCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionPolarization()));
-    connect(correctionFluxCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionFlux()));
-    connect(correctionExposureCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionExposure()));
+    connect(correctionNoiseCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionNoise(bool)));
+    connect(correctionPlaneCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionPlane(bool)));
+    connect(correctionClutterCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionClutter(bool)));
+    connect(correctionMedianCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionMedian(bool)));
+    connect(correctionPolarizationCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionPolarization(bool)));
+    connect(correctionFluxCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionFlux(bool)));
+    connect(correctionExposureCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(setCorrectionExposure(bool)));
     
 
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
