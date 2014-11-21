@@ -499,8 +499,8 @@ void MainWindow::initLayout()
     connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
 //    connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
     connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
-    connect(integrationModeComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(setIntegrationMode(QString)));
-    connect(selectionModeComboBox,SIGNAL(currentIndexChanged(QString)),this,SLOT(setSelectionMode(QString)));
+    connect(integrationModeComboBox,SIGNAL(currentTextChanged(QString)),this,SLOT(setIntegrationMode(QString)));
+    connect(selectionModeComboBox,SIGNAL(currentTextChanged(QString)),this,SLOT(setSelectionMode(QString)));
     connect(this, SIGNAL(integrateImage()), imagePreviewWindow->worker(), SLOT(analyzeSingle()));
     connect(this, SIGNAL(analyzeSeries()), imagePreviewWindow->worker(), SLOT(analyzeSeries()));
     connect(this, SIGNAL(analyzeSet()), imagePreviewWindow->worker(), SLOT(analyzeSet()));
@@ -555,6 +555,12 @@ void MainWindow::setStartConditions()
     postCorrectionMinDoubleSpinBox->setValue(1);
     postCorrectionMinDoubleSpinBox->setValue(0);
     postCorrectionMaxDoubleSpinBox->setValue(1e6);
+
+    selectionModeComboBox->setCurrentIndex(1);
+    selectionModeComboBox->setCurrentIndex(0);
+
+    integrationModeComboBox->setCurrentIndex(1);
+    integrationModeComboBox->setCurrentIndex(0);
 }
 
 
