@@ -62,16 +62,14 @@ void MainWindow::writeSettings()
     settings.setValue("working_dir", working_dir);
 }
 
-void MainWindow::integrateSelectedMode()
+void MainWindow::applyAnalytics()
 {
-    if (selection_mode == "Series")
-    {
-        emit analyzeSeries();
-    }
-    else if (selection_mode == "Set")
-    {
-        emit analyzeSet();
-    }
+    emit analyze(apply_mode);
+}
+
+void MainWindow::applyPlaneMarker()
+{
+    emit setPlaneMarkers(apply_mode);
 }
 
 //void MainWindow::peakHuntSelectedMode()
@@ -105,27 +103,23 @@ void MainWindow::integrateSelectedMode()
 //}
 
 
-void MainWindow::applySelectionMode()
+void MainWindow::applySelection()
 {
-    if (selection_mode == "Series")
-    {
-        emit applySelectionToSeries();
-    }
-    else if (selection_mode == "Set")
-    {
-        emit applySelectionToSeriesSet();
-    }
+    emit setSelection(apply_mode);
 }
 
-void MainWindow::setSelectionMode(QString str)
+void MainWindow::setApplyMode(QString str)
 {
-    selection_mode = str;
+//    qDebug() << str;
+
+    apply_mode = str;
+//    integration_mode = str;
 }
 
-void MainWindow::setIntegrationMode(QString str)
-{
-    integration_mode = str;
-}
+//void MainWindow::setIntegrationMode(QString str)
+//{
+
+//}
 
 
 
@@ -361,7 +355,9 @@ void MainWindow::initLayout()
     
     
     // Dock widget
+    applyPlaneMarkerPushButton  = new QPushButton("Apply markers");
     applySelectionPushButton  = new QPushButton("Apply selection");
+    integratePushButton = new QPushButton("Analyze frames");
 
     selectionModeComboBox = new QComboBox;
     selectionModeComboBox->addItem("Series");
@@ -369,38 +365,42 @@ void MainWindow::initLayout()
 
     QGridLayout *selectionLayout = new QGridLayout;
     selectionLayout->addWidget(selectionModeComboBox, 0, 0, 1, 2);
-    selectionLayout->addWidget(applySelectionPushButton, 1, 0, 1 , 2);
+    selectionLayout->addWidget(applyPlaneMarkerPushButton, 1, 0, 1 , 2);
+    selectionLayout->addWidget(applySelectionPushButton, 2, 0, 1 , 2);
+    selectionLayout->addWidget(integratePushButton, 3, 0, 1 , 2);
+
+
 
     selectionWidget = new QWidget;
     selectionWidget->setLayout(selectionLayout);
 
-    selectionDock =  new QDockWidget("Area selection");
+    selectionDock =  new QDockWidget("Operations");
 //    selectionDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     selectionDock->setFixedHeight(selectionWidget->minimumSizeHint().height()*1.2);
     selectionDock->setWidget(selectionWidget);
     imageWidget->addDockWidget(Qt::RightDockWidgetArea, selectionDock);
 
     // Dock widget
-    integrationModeComboBox = new QComboBox;
-    integrationModeComboBox->addItem("Series");
-    integrationModeComboBox->addItem("Set");
+//    integrationModeComboBox = new QComboBox;
+//    integrationModeComboBox->addItem("Series");
+//    integrationModeComboBox->addItem("Set");
 
-    integratePushButton = new QPushButton("Analyze");
+
     
 //    peakHuntPushButton = new QPushButton("Hunt peak");
 
-    QGridLayout * calculationLayout = new QGridLayout;
-    calculationLayout->addWidget(integrationModeComboBox,0,0,1,1);
-    calculationLayout->addWidget(integratePushButton,1,0,1,1);
+//    QGridLayout * calculationLayout = new QGridLayout;
+//    calculationLayout->addWidget(integrationModeComboBox,0,0,1,1);
+//    calculationLayout->addWidget(integratePushButton,1,0,1,1);
 
-    calculationWidget = new QWidget;
-    calculationWidget->setLayout(calculationLayout);
+//    calculationWidget = new QWidget;
+//    calculationWidget->setLayout(calculationLayout);
 
-    calculationDock =  new QDockWidget("Calculations");
+//    calculationDock =  new QDockWidget("Calculations");
 //    calculationDock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
-    calculationDock->setFixedHeight(calculationWidget->minimumSizeHint().height()*1.2);
-    calculationDock->setWidget(calculationWidget);
-    imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
+//    calculationDock->setFixedHeight(calculationWidget->minimumSizeHint().height()*1.2);
+//    calculationDock->setWidget(calculationWidget);
+//    imageWidget->addDockWidget(Qt::RightDockWidgetArea, calculationDock);
     
     // Dock widget
     imageHeaderWidget = new QPlainTextEdit;
@@ -471,8 +471,10 @@ void MainWindow::initLayout()
     connect(prevSeriesPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(prevSeries()));
     connect(removeCurrentPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(removeCurrentImage()));
     connect(imagePreviewWindow->worker(), SIGNAL(pathRemoved(QString)), fileSelectionModel, SLOT(removeFile(QString)));
-    connect(this, SIGNAL(applySelectionToSeries()), imagePreviewWindow->worker(), SLOT(applySelectionToSeries()));
-    connect(this, SIGNAL(applySelectionToSeriesSet()), imagePreviewWindow->worker(), SLOT(applySelectionToSeriesSet()));
+    connect(this, SIGNAL(setSelection(QString)), imagePreviewWindow->worker(), SLOT(applySelection(QString)));
+    connect(this, SIGNAL(setPlaneMarkers(QString)), imagePreviewWindow->worker(), SLOT(applyPlaneMarker(QString)));
+    connect(this, SIGNAL(analyze(QString)), imagePreviewWindow->worker(), SLOT(analyze(QString)));
+//    connect(this, SIGNAL(applySelectionToSeriesSet()), imagePreviewWindow->worker(), SLOT(applySelectionToSeriesSet()));
     connect(imagePreviewWindow->worker(), SIGNAL(pathChanged(QString)), this, SLOT(setHeader(QString)));
     connect(imagePreviewWindow->worker(), SIGNAL(pathChanged(QString)), pathLineEdit, SLOT(setText(QString)));
     connect(imageSpinBox, SIGNAL(valueChanged(int)), imagePreviewWindow->worker(), SLOT(setFrameByIndex(int)));
@@ -480,6 +482,7 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
     connect(traceSetPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(traceSet()));
+
 //    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
     connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
     connect(imagePreviewWindow->worker(), SIGNAL(progressRangeChanged(int,int)), generalProgressBar, SLOT(setRange(int,int)));
@@ -496,14 +499,14 @@ void MainWindow::initLayout()
     connect(centerImageAction, SIGNAL(triggered()), imagePreviewWindow->worker(), SLOT(centerImage()));
     connect(showWeightCenterAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(showWeightCenter(bool)));
 //    connect(this, SIGNAL(centerImage()), imagePreviewWindow->worker(), SLOT(centerImage()));
-    connect(integratePushButton,SIGNAL(clicked()),this,SLOT(integrateSelectedMode()));
+    connect(integratePushButton,SIGNAL(clicked()),this,SLOT(applyAnalytics()));
 //    connect(peakHuntPushButton,SIGNAL(clicked()),this,SLOT(peakHuntSelectedMode()));
-    connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelectionMode()));
-    connect(integrationModeComboBox,SIGNAL(currentTextChanged(QString)),this,SLOT(setIntegrationMode(QString)));
-    connect(selectionModeComboBox,SIGNAL(currentTextChanged(QString)),this,SLOT(setSelectionMode(QString)));
-    connect(this, SIGNAL(integrateImage()), imagePreviewWindow->worker(), SLOT(analyzeSingle()));
-    connect(this, SIGNAL(analyzeSeries()), imagePreviewWindow->worker(), SLOT(analyzeSeries()));
-    connect(this, SIGNAL(analyzeSet()), imagePreviewWindow->worker(), SLOT(analyzeSet()));
+    connect(applyPlaneMarkerPushButton,SIGNAL(clicked()),this,SLOT(applyPlaneMarker()));
+    connect(applySelectionPushButton,SIGNAL(clicked()),this,SLOT(applySelection()));
+    connect(selectionModeComboBox,SIGNAL(currentTextChanged(QString)),this,SLOT(setApplyMode(QString)));
+//    connect(this, SIGNAL(integrateImage()), imagePreviewWindow->worker(), SLOT(analyzeSingle()));
+//    connect(this, SIGNAL(analyzeSeries()), imagePreviewWindow->worker(), SLOT(analyzeSeries()));
+//    connect(this, SIGNAL(analyzeSet()), imagePreviewWindow->worker(), SLOT(analyzeSet()));
 //    connect(squareAreaSelectAlphaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionAlphaActive(bool)));
 //    connect(squareAreaSelectBetaAction, SIGNAL(toggled(bool)), imagePreviewWindow->worker(), SLOT(setSelectionBetaActive(bool)));
 //    connect(imagePreviewWindow->worker(), SIGNAL(selectionAlphaChanged(bool)), squareAreaSelectAlphaAction, SLOT(setChecked(bool)));
@@ -559,8 +562,8 @@ void MainWindow::setStartConditions()
     selectionModeComboBox->setCurrentIndex(1);
     selectionModeComboBox->setCurrentIndex(0);
 
-    integrationModeComboBox->setCurrentIndex(1);
-    integrationModeComboBox->setCurrentIndex(0);
+//    integrationModeComboBox->setCurrentIndex(1);
+//    integrationModeComboBox->setCurrentIndex(0);
 }
 
 

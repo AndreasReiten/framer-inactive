@@ -36,12 +36,14 @@ public slots:
     void loadProject();
     void setFiles(QMap<QString, QStringList> folder_map);
 //    void removeImage();
-    
-    void integrateSelectedMode();
+    void applySelection();
+    void applyAnalytics();
 //    void peakHuntSelectedMode();
-    void applySelectionMode();
-    void setSelectionMode(QString str);
-    void setIntegrationMode(QString str);
+//    void applySelection();
+    void setApplyMode(QString str);
+    void applyPlaneMarker();
+//    void analyze(QString);
+//    void setIntegrationMode(QString str);
 //    void setImage(ImageInfo image);
     void setBatchSize(int value);
     void setImageRange(int low, int high);
@@ -54,14 +56,17 @@ signals:
 //    void outputTextAppended(QString str);
 //    void outputTextChanged(QString str);
 //    void integrateCurrentFrame(QString path, QRect rect);
-    void integrateImage();
-    void analyzeSeries();
-    void analyzeSet();
+//    void integrateImage();
+//    void analyzeSeries();
+//    void analyzeSet();
 //    void peakHuntImage();
 //    void peakHuntFolder();
 //    void peakHuntSet();
-    void applySelectionToSeriesSet();
-    void applySelectionToSeries();
+//    void applySelectionToSeriesSet();
+//    void applySelectionToSeries();
+    void setSelection(QString str);
+    void setPlaneMarkers(QString str);
+    void analyze(QString str);
     void setChanged(SeriesSet set);
     
 public:
@@ -95,7 +100,7 @@ private:
     
     QDockWidget * navigationDock;
     QDockWidget * settingsDock;
-    QDockWidget * calculationDock;
+//    QDockWidget * calculationDock;
     QDockWidget * headerDock;
     QDockWidget * selectionDock;
 
@@ -114,6 +119,7 @@ private:
     QPushButton * prevSeriesPushButton;
     QPushButton * removeCurrentPushButton;
     QPushButton * applySelectionPushButton;
+    QPushButton * applyPlaneMarkerPushButton;
     QSpinBox * batchSizeSpinBox;
     QSpinBox * imageSpinBox;
     
@@ -146,7 +152,7 @@ private:
     QWidget * correctionWidget;
     QDockWidget * correctionDock;
 
-    QComboBox * integrationModeComboBox;
+//    QComboBox * integrationModeComboBox;
     QPushButton * integratePushButton;
 //    QPushButton * peakHuntPushButton;
     QPushButton * traceSetPushButton;
@@ -168,8 +174,8 @@ private:
 //    SeriesSet folderSet;
 
     bool hasPendingChanges;
-    QString integration_mode;
-    QString selection_mode;
+//    QString integration_mode;
+    QString apply_mode;
     
     // Integration
     double integration_sum;
