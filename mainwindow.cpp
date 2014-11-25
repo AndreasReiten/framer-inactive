@@ -313,6 +313,10 @@ void MainWindow::initLayout()
     correctionMedianSpinBox = new QSpinBox;
     correctionMedianSpinBox->setRange(0,100);
     correctionMedianSpinBox->setPrefix("n x n: ");
+
+    correctionPlaneSpinBox = new QSpinBox;
+    correctionPlaneSpinBox->setRange(3,20);
+    correctionPlaneSpinBox->setPrefix("Samples: ");
             
     correctionNoiseCheckBox = new QCheckBox("Flat b/g subtract: ");
     correctionPlaneCheckBox = new QCheckBox("Planar b/g subtract");
@@ -332,7 +336,8 @@ void MainWindow::initLayout()
     correctionLayout->addWidget(traceSetPushButton,0,0,1,2);
     correctionLayout->addWidget(correctionNoiseCheckBox,1,0,1,1);
     correctionLayout->addWidget(correctionNoiseDoubleSpinBox,1,1,1,1);
-    correctionLayout->addWidget(correctionPlaneCheckBox,2,0,1,2);
+    correctionLayout->addWidget(correctionPlaneCheckBox,2,0,1,1);
+    correctionLayout->addWidget(correctionPlaneSpinBox,2,1,1,1);
     correctionLayout->addWidget(correctionClutterCheckBox,3,0,1,1);
     correctionLayout->addWidget(correctionClutterSpinBox,3,1,1,1);
     correctionLayout->addWidget(correctionMedianCheckBox,4,0,1,1);
@@ -482,6 +487,7 @@ void MainWindow::initLayout()
     connect(imagePreviewWindow->worker(), SIGNAL(currentIndexChanged(int)), imageSpinBox, SLOT(setValue(int)));
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
     connect(traceSetPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(traceSet()));
+    connect(correctionPlaneSpinBox, SIGNAL(valueChanged(int)), imagePreviewWindow->worker(), SLOT(setLsqSamples(int)));
 
 //    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
     connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
@@ -560,6 +566,8 @@ void MainWindow::setStartConditions()
 
     selectionModeComboBox->setCurrentIndex(1);
     selectionModeComboBox->setCurrentIndex(0);
+
+    correctionPlaneSpinBox->setValue(10);
 
 //    integrationModeComboBox->setCurrentIndex(1);
 //    integrationModeComboBox->setCurrentIndex(0);

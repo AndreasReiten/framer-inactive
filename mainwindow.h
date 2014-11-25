@@ -148,6 +148,7 @@ private:
     QDoubleSpinBox * postCorrectionMaxDoubleSpinBox;
     QSpinBox * correctionClutterSpinBox;
     QSpinBox * correctionMedianSpinBox;
+    QSpinBox * correctionPlaneSpinBox;
     
     QWidget * correctionWidget;
     QDockWidget * correctionDock;
