@@ -541,8 +541,7 @@ void MainWindow::setStartConditions()
     batchSizeSpinBox->setValue(10);
     tsfTextureComboBox->setCurrentIndex(1);
     tsfAlphaComboBox->setCurrentIndex(2);
-    dataMinDoubleSpinBox->setValue(10);
-    dataMinDoubleSpinBox->setValue(0);
+    dataMinDoubleSpinBox->setValue(1);
     dataMaxDoubleSpinBox->setValue(1000);
     logCheckBox->setChecked(true);
 //    autoBackgroundCorrectionCheckBox->setChecked(false);
