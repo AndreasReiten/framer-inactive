@@ -334,10 +334,10 @@ void MainWindow::initLayout()
     
     QGridLayout * correctionLayout = new QGridLayout;
     correctionLayout->addWidget(traceSetPushButton,0,0,1,2);
-    correctionLayout->addWidget(correctionNoiseCheckBox,1,0,1,1);
-    correctionLayout->addWidget(correctionNoiseDoubleSpinBox,1,1,1,1);
-    correctionLayout->addWidget(correctionPlaneCheckBox,2,0,1,1);
-    correctionLayout->addWidget(correctionPlaneSpinBox,2,1,1,1);
+    correctionLayout->addWidget(correctionPlaneCheckBox,1,0,1,1);
+    correctionLayout->addWidget(correctionPlaneSpinBox,1,1,1,1);
+    correctionLayout->addWidget(correctionNoiseCheckBox,2,0,1,1);
+    correctionLayout->addWidget(correctionNoiseDoubleSpinBox,2,1,1,1);
     correctionLayout->addWidget(correctionClutterCheckBox,3,0,1,1);
     correctionLayout->addWidget(correctionClutterSpinBox,3,1,1,1);
     correctionLayout->addWidget(correctionMedianCheckBox,4,0,1,1);
@@ -360,9 +360,9 @@ void MainWindow::initLayout()
     
     
     // Dock widget
-    applyPlaneMarkerPushButton  = new QPushButton("Apply markers");
-    applySelectionPushButton  = new QPushButton("Apply selection");
-    integratePushButton = new QPushButton("Analyze frames");
+    applyPlaneMarkerPushButton  = new QPushButton(QIcon(":/art/lsqplane.png"),"Apply markers");
+    applySelectionPushButton  = new QPushButton(QIcon(":/art/select.png"),"Apply selection");
+    integratePushButton = new QPushButton(QIcon(":/art/proceed.png"),"Analyze frames");
 
     selectionModeComboBox = new QComboBox;
     selectionModeComboBox->addItem("Series");

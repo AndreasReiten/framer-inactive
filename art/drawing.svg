@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4"
-     inkscape:cx="490.23602"
-     inkscape:cy="377.92779"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="648.49402"
+     inkscape:cy="319.87741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -48,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1253,5 +1253,115 @@
            transform="matrix(0,1,-1,0,0,0)" />
       </g>
     </g>
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-02-2"
+       width="5"
+       height="5"
+       x="235"
+       y="612.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-86-9"
+       width="5"
+       height="5"
+       x="235"
+       y="622.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-22-6"
+       width="5"
+       height="5"
+       x="230"
+       y="632.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-97-8"
+       width="5"
+       height="5"
+       x="225"
+       y="622.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-4-4"
+       width="5"
+       height="5"
+       x="210"
+       y="612.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-12-7"
+       width="5"
+       height="5"
+       x="205"
+       y="647.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-48-6"
+       width="5"
+       height="5"
+       x="220"
+       y="617.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-12-7-2"
+       width="5"
+       height="5"
+       x="220"
+       y="632.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-12-7-9"
+       width="5"
+       height="5"
+       x="225"
+       y="642.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-12-7-1"
+       width="5"
+       height="5"
+       x="230"
+       y="652.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
+    <rect
+       style="fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
+       id="rect2989-9-61-3-12-7-5"
+       width="5"
+       height="5"
+       x="210"
+       y="632.36218"
+       inkscape:export-filename="/home/natt/coding/framer/art/lsqplane.png"
+       inkscape:export-xdpi="96.098564"
+       inkscape:export-ydpi="96.098564" />
   </g>
 </svg>

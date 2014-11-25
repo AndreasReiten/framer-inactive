@@ -25,5 +25,7 @@
         <file>art/select2.png</file>
         <file>art/prev_series.png</file>
         <file>art/next_series.png</file>
+        <file>art/lsqplane.png</file>
+        <file>art/proceed.png</file>
     </qresource>
 </RCC>
