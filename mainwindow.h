@@ -139,6 +139,7 @@ private:
     QCheckBox * correctionPolarizationCheckBox;
     QCheckBox * correctionFluxCheckBox;
     QCheckBox * correctionExposureCheckBox;
+    QCheckBox * traceTextureCheckBox;
     
 //    QCheckBox * correctionLorentzCheckBox;
 //    QCheckBox * correctionBackgroundCheckBox;

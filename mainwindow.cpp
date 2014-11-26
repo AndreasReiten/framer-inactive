@@ -290,6 +290,7 @@ void MainWindow::initLayout()
     
     // Dock widget
     traceSetPushButton = new QPushButton("Trace set");
+    traceTextureCheckBox = new QCheckBox("Show");
 //    setSeriesBackgroundPushButton = new QPushButton("Set series b/g");
     
     correctionNoiseDoubleSpinBox = new QDoubleSpinBox;
@@ -333,7 +334,8 @@ void MainWindow::initLayout()
 
     
     QGridLayout * correctionLayout = new QGridLayout;
-    correctionLayout->addWidget(traceSetPushButton,0,0,1,2);
+    correctionLayout->addWidget(traceSetPushButton,0,0,1,1);
+    correctionLayout->addWidget(traceTextureCheckBox,0,1,1,1);
     correctionLayout->addWidget(correctionPlaneCheckBox,1,0,1,1);
     correctionLayout->addWidget(correctionPlaneSpinBox,1,1,1,1);
     correctionLayout->addWidget(correctionNoiseCheckBox,2,0,1,1);
@@ -488,7 +490,7 @@ void MainWindow::initLayout()
     connect(this, SIGNAL(setChanged(SeriesSet)), imagePreviewWindow->worker(), SLOT(setSet(SeriesSet)));
     connect(traceSetPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(traceSet()));
     connect(correctionPlaneSpinBox, SIGNAL(valueChanged(int)), imagePreviewWindow->worker(), SLOT(setLsqSamples(int)));
-
+    connect(traceTextureCheckBox,SIGNAL(toggled(bool)),imagePreviewWindow->worker(),SLOT(toggleTraceTexture(bool)));
 //    connect(setSeriesBackgroundPushButton, SIGNAL(clicked()), imagePreviewWindow->worker(), SLOT(setSeriesBackgroundBuffer()));
     connect(imagePreviewWindow->worker(), SIGNAL(progressChanged(int)), generalProgressBar, SLOT(setValue(int)));
     connect(imagePreviewWindow->worker(), SIGNAL(progressRangeChanged(int,int)), generalProgressBar, SLOT(setRange(int,int)));
