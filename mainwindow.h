@@ -47,6 +47,8 @@ public slots:
 //    void setImage(ImageInfo image);
     void setBatchSize(int value);
     void setImageRange(int low, int high);
+    void takeScreenshotFunction();
+    void saveImageFunction();
     
 signals:
 //    void pathRemoved(QString path);
@@ -68,6 +70,8 @@ signals:
     void setPlaneMarkers(QString str);
     void analyze(QString str);
     void setChanged(SeriesSet set);
+    void takeScreenshot(QString path);
+    void saveImage(QString path);
     
 public:
     MainWindow(QWidget *parent = 0);
@@ -83,6 +87,7 @@ private:
     void writeSettings();
     
     QString working_dir;
+    QString screenshot_dir;
     
     QTabWidget * tabWidget;
     QWidget * fileWidget;
@@ -168,6 +173,8 @@ private:
 //    QAction * squareAreaSelectBetaAction;
     QAction * centerImageAction;
     QAction * showWeightCenterAction;
+    QAction * screenshotAct;
+    QAction * saveImageAct;
     
     ImagePreviewWindow * imagePreviewWindow;
     SharedContextWindow * sharedContextWindow ;

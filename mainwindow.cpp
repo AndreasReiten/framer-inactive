@@ -50,6 +50,7 @@ void MainWindow::readSettings()
     QPoint pos = settings.value("position", QPoint(0, 0)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     working_dir = settings.value("working_dir").toString();
+    screenshot_dir = settings.value("screenshot_dir").toString();
     resize(size);
     move(pos);
 }
@@ -60,6 +61,7 @@ void MainWindow::writeSettings()
     settings.setValue("position", pos());
     settings.setValue("size", size());
     settings.setValue("working_dir", working_dir);
+    settings.setValue("screenshot_dir", screenshot_dir);
 }
 
 void MainWindow::applyAnalytics()
@@ -170,6 +172,12 @@ void MainWindow::initLayout()
 //    squareAreaSelectBetaAction->setCheckable(true);
 //    squareAreaSelectBetaAction->setChecked(false);
     
+    screenshotAct = new QAction(QIcon(":/art/screenshot.png"), tr("Take screenshot"), this);
+    screenshotAct->setCheckable(false);
+    
+    saveImageAct = new QAction(QIcon(":/art/screenshot.png"), tr("Save image"), this);
+    saveImageAct->setCheckable(false);
+    
     centerImageAction = new QAction(QIcon(":/art/center.png"), tr("Center image"), this);
     centerImageAction->setCheckable(false);
 
@@ -181,6 +189,9 @@ void MainWindow::initLayout()
     imageToolBar->addAction(loadProjectAction);
     imageToolBar->addAction(centerImageAction);
     imageToolBar->addAction(showWeightCenterAction);
+    imageToolBar->addSeparator();
+    imageToolBar->addAction(screenshotAct);
+    imageToolBar->addAction(saveImageAct);
 //    imageToolBar->addAction(squareAreaSelectAlphaAction);
 //    imageToolBar->addAction(squareAreaSelectBetaAction);
     imageToolBar->addWidget(pathLineEdit);
@@ -525,6 +536,12 @@ void MainWindow::initLayout()
     connect(postCorrectionMaxDoubleSpinBox,SIGNAL(valueChanged(double)), imagePreviewWindow->worker(), SLOT(setThresholdPostCorrectionHigh(double)));
     connect(imagePreviewWindow->worker(), SIGNAL(noiseLowChanged(double)), correctionNoiseDoubleSpinBox, SLOT(setValue(double)));
     
+    connect(saveImageAct, SIGNAL(triggered()), this, SLOT(saveImageFunction()));
+    connect(this, SIGNAL(saveImage(QString)), imagePreviewWindow->worker(),SLOT(saveImage(QString)));
+    
+    connect(screenshotAct, SIGNAL(triggered()), this, SLOT(takeScreenshotFunction()));
+    connect(this, SIGNAL(takeScreenshot(QString)), imagePreviewWindow->worker(),SLOT(takeScreenShot(QString)));
+    
     // Text output widget
     outputPlainTextEdit = new QPlainTextEdit("Output is written in plain text here");
     outputPlainTextEdit->setReadOnly(true);
@@ -555,13 +572,16 @@ void MainWindow::setStartConditions()
 //    autoBackgroundCorrectionCheckBox->setChecked(false);
     correctionLorentzCheckBox->setChecked(false);
 //    correctionBackgroundCheckBox->setChecked(false);
+    
+    correctionPlaneCheckBox->setChecked(true);
+    correctionPlaneCheckBox->setChecked(false);
+    
     imageModeComboBox->setCurrentIndex(1);
     imageModeComboBox->setCurrentIndex(0);
     
     correctionNoiseDoubleSpinBox->setValue(1);
     correctionNoiseDoubleSpinBox->setValue(0);
     noiseCorrectionMaxDoubleSpinBox->setValue(1e6);
-    
     postCorrectionMinDoubleSpinBox->setValue(1);
     postCorrectionMinDoubleSpinBox->setValue(0);
     postCorrectionMaxDoubleSpinBox->setValue(1e6);
@@ -829,4 +849,45 @@ void MainWindow::batchForward()
 void MainWindow::batchBackward()
 {
     imageSpinBox->setValue(imageSpinBox->value()-batch_size);
+}
+
+
+void MainWindow::takeScreenshotFunction()
+{
+    // Move this to imagepreview?
+    QString format = "jpg";
+    QDateTime dateTime = dateTime.currentDateTime();
+    QString initialPath = screenshot_dir + QString("/screenshot_"+dateTime.toString("yyyy_MM_dd_hh_mm_ss")) +"."+ format;
+
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save as"), initialPath,
+                                                tr("%1 files (*.%2);;All files (*)")
+                                                .arg(format.toUpper())
+                                                .arg(format));
+    if (file_name !="")
+    {
+        QFileInfo info(file_name);
+        screenshot_dir = info.absoluteDir().path();
+
+        emit takeScreenshot(file_name);
+    }
+}
+
+void MainWindow::saveImageFunction()
+{
+    // Move this to imagepreview?
+    QString format = "jpg";
+    QDateTime dateTime = dateTime.currentDateTime();
+    QString initialPath = screenshot_dir + QString("/image_"+dateTime.toString("yyyy_MM_dd_hh_mm_ss")) +"."+ format;
+
+    QString file_name = QFileDialog::getSaveFileName(this, tr("Save as"), initialPath,
+                                                tr("%1 files (*.%2);;All files (*)")
+                                                .arg(format.toUpper())
+                                                .arg(format));
+    if (file_name !="")
+    {
+        QFileInfo info(file_name);
+        screenshot_dir = info.absoluteDir().path();
+
+        emit saveImage(file_name);
+    }
 }
